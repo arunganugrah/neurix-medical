@@ -1,8 +1,7 @@
 export default function sitemap() {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
   return [
     {
-      url: `${baseUrl}/`,
+      url: "https://neurix-medical.vercel.app/",  // GANTI ini dengan URL Vercel Anda
       lastModified: new Date(),
       priority: 1,
       changeFrequency: "weekly",
