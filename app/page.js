@@ -119,30 +119,79 @@ export default function LandingPage() {
           </div>
 
           <div className="nx-pop" style={{ position: "relative" }}>
-            <div style={{ borderRadius: 24, overflow: "hidden", boxShadow: "0 30px 70px -30px rgba(11,42,74,.4)" }}>
-              <NeuronArt />
-            </div>
-            <div style={{ position: "absolute", top: 18, right: -18, width: 230, background: C.navyDeep, color: "#fff", borderRadius: 18, padding: 16, boxShadow: "0 20px 40px -18px rgba(0,0,0,.5)" }} className="nx-promo-card">
-              <p style={{ color: C.gold, fontSize: 11, fontWeight: 700, letterSpacing: ".1em", margin: "0 0 10px" }}>PROMO SPESIAL</p>
-              <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
-                <span style={{ fontSize: 16 }}>✨</span>
-                <div>
-                  <div style={{ fontWeight: 700, fontSize: 13 }}>DAFTAR 3 BLOK</div>
-                  <div style={{ fontSize: 11.5, opacity: .8 }}>Langsung jadi member Neurix seumur hidup!</div>
-                </div>
-              </div>
-              <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-                <span style={{ fontSize: 16 }}>⏰</span>
-                <div>
-                  <div style={{ fontWeight: 700, fontSize: 13 }}>WAKTU TERBATAS</div>
-                  <div style={{ fontSize: 11.5, opacity: .8 }}>Promo valid sampai akhir bulan September 2026.</div>
-                </div>
-              </div>
-              <button style={{ width: "100%", border: `1px solid ${C.gold}`, background: "none", color: C.gold, borderRadius: 10, padding: "8px 0", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>DAFTAR SEKARANG</button>
-            </div>
-          </div>
+  <div style={{ borderRadius: 24, overflow: "hidden", boxShadow: "0 30px 70px -30px rgba(11,42,74,.4)" }}>
+    <img 
+      src="/logo-neurix.svg" 
+      alt="Neurix Medical Logo" 
+      style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }} 
+    />
+  </div>
+
+  {/* POPUP 1: EARLY BIRD & BIRTHDAY - KIRI ATAS */}
+  <div style={{ position: "absolute", top: -30, left: -40, width: 240, background: C.navyDeep, color: "#fff", borderRadius: 18, padding: 16, boxShadow: "0 20px 40px -18px rgba(0,0,0,.5)" }} className="nx-promo-card">
+    <p style={{ color: C.gold, fontSize: 11, fontWeight: 700, letterSpacing: ".1em", margin: "0 0 12px" }}>PROMO SPESIAL</p>
+    
+    <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+      <span style={{ fontSize: 16 }}>🎯</span>
+      <div>
+        <div style={{ fontWeight: 700, fontSize: 13 }}>EARLY BIRD</div>
+        <div style={{ fontSize: 11.5, opacity: .8 }}>Diskon khusus 3 pendaftar pertama yang mengajak teman bergabung</div>
+      </div>
+    </div>
+    
+    <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+      <span style={{ fontSize: 16 }}>🎂</span>
+      <div>
+        <div style={{ fontWeight: 700, fontSize: 13 }}>BIRTHDAY SPECIAL</div>
+        <div style={{ fontSize: 11.5, opacity: .8 }}>Dapatkan special discount di bulan ulang tahunmu</div>
+      </div>
+    </div>
+    
+    <button style={{ width: "100%", border: `1px solid ${C.gold}`, background: "none", color: C.gold, borderRadius: 10, padding: "8px 0", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>LIHAT PROMO</button>
+  </div>
+
+  {/* POPUP 2: NEURIX MEMBERSHIP - KANAN TENGAH */}
+  <div style={{ position: "absolute", top: 40, right: -50, width: 260, background: C.navy, color: "#fff", borderRadius: 18, padding: 18, boxShadow: "0 20px 50px -20px rgba(0,0,0,.6)", border: `2px solid ${C.gold}` }} className="nx-promo-card">
+    <p style={{ color: C.gold, fontSize: 11, fontWeight: 700, letterSpacing: ".1em", margin: "0 0 14px" }}>EXCLUSIVE OFFER</p>
+    
+    <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+      <span style={{ fontSize: 20 }}>👑</span>
+      <div>
+        <div style={{ fontWeight: 700, fontSize: 14, color: C.gold }}>NEURIX MEMBERSHIP</div>
+        <div style={{ fontSize: 12, opacity: .9, marginTop: 4 }}>Daftar 3 blok sekaligus</div>
+        <div style={{ fontSize: 12, opacity: .9 }}>Dapatkan akses khusus membership Neurix</div>
+      </div>
+    </div>
+    
+    <div style={{ background: "rgba(217, 149, 47, 0.2)", borderRadius: 10, padding: 10, marginBottom: 12 }}>
+      <div style={{ fontSize: 12, fontWeight: 700, color: C.gold, textAlign: "center" }}>Seumur Hidup! 🎉</div>
+    </div>
+    
+    <button style={{ width: "100%", background: C.gold, color: "#1C2430", border: "none", borderRadius: 10, padding: "10px 0", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>DAFTAR SEKARANG</button>
+  </div>
+</div>
+
+  {/* POPUP 3: PROMO DAFTAR 3 BLOK - KANAN BAWAH */}
+  <div style={{ position: "absolute", bottom: -50, right: -20, width: 260, background: C.gold, color: "#1C2430", borderRadius: 18, padding: 18, boxShadow: "0 20px 50px -20px rgba(0,0,0,.6)" }} className="nx-promo-card">
+    <p style={{ color: "#1C2430", fontSize: 11, fontWeight: 700, letterSpacing: ".1em", margin: "0 0 14px" }}>⏰ WAKTU TERBATAS</p>
+    
+    <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+      <span style={{ fontSize: 20 }}>🚀</span>
+      <div>
+        <div style={{ fontWeight: 700, fontSize: 14 }}>DAFTAR 3 BLOK</div>
+        <div style={{ fontSize: 12, opacity: .85, marginTop: 4 }}>Langsung jadi member Neurix seumur hidup!</div>
+      </div>
+    </div>
+    
+    <div style={{ background: "rgba(28, 36, 48, 0.15)", borderRadius: 10, padding: 10, marginBottom: 12, textAlign: "center" }}>
+      <div style={{ fontSize: 11, fontWeight: 700 }}>Valid sampai akhir September 2026</div>
+    </div>
+    
+    <button style={{ width: "100%", background: "#1C2430", color: C.gold, border: "none", borderRadius: 10, padding: "10px 0", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>DAFTAR SEKARANG</button>
+  </div>
         </div>
       </section>
+      
 
       {/* PROGRAMS SECTION */}
       <section id="programs" style={{ maxWidth: 1200, margin: "0 auto", padding: "60px 24px", background: C.paper }}>
@@ -191,9 +240,9 @@ export default function LandingPage() {
         <h2 style={{ ...serif, color: C.navy, fontSize: 32, textAlign: "center", marginBottom: 40 }}>Membership Tiers</h2>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: 20 }}>
           {[
-            { tier: "Gold Member", price: "Rp 299K", features: ["Akses 50+ topics", "Quiz unlimited", "Consultation 2x/bulan"] },
-            { tier: "Silver Member", price: "Rp 599K", features: ["Akses all topics", "Quiz unlimited", "Consultation 4x/bulan", "Priority support"] },
-            { tier: "Platinum Member", price: "Rp 999K", features: ["Akses all + premium", "Group sessions", "Consultation unlimited", "VIP support", "Research guidance"] }
+            { tier: "Gold Member", price: "Rp xxxK", features: ["Akses 50+ topics", "Quiz unlimited", "Consultation 2x/bulan"] },
+            { tier: "Silver Member", price: "Rp xxxK", features: ["Akses all topics", "Quiz unlimited", "Consultation 4x/bulan", "Priority support"] },
+            { tier: "Platinum Member", price: "Rp xxxK", features: ["Akses all + premium", "Group sessions", "Consultation unlimited", "VIP support", "Research guidance"] }
           ].map((m) => (
             <div key={m.tier} style={{ background: C.card, border: `2px solid ${C.gold}`, borderRadius: 18, padding: 24, textAlign: "center" }}>
               <h3 style={{ ...serif, color: C.navy, margin: "0 0 8px" }}>{m.tier}</h3>
@@ -237,10 +286,10 @@ export default function LandingPage() {
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 20 }}>
           {[
-            { label: "Founded", value: "2024" },
-            { label: "Students", value: "500+" },
-            { label: "Topics", value: "150+" },
-            { label: "Mentors", value: "30+" }
+            { label: "Founded", value: "2026" },
+            { label: "Students", value: "50+" },
+            { label: "Topics", value: "Terlengkap" },
+            { label: "Mentors", value: "Top Quality" }
           ].map((stat) => (
             <div key={stat.label} style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 14, padding: 20, textAlign: "center" }}>
               <div style={{ fontSize: 24, fontWeight: 700, color: C.gold, marginBottom: 4 }}>{stat.value}</div>
@@ -257,9 +306,9 @@ export default function LandingPage() {
           <div>
             <h3 style={{ ...serif, color: C.gold, marginBottom: 20 }}>Contact Info</h3>
             {[
-              { icon: "📧", label: "Email", value: "hello@neurixmedical.com" },
-              { icon: "📱", label: "WhatsApp", value: "+62 812 3456 7890" },
-              { icon: "📍", label: "Location", value: "Jakarta, Indonesia" }
+              { icon: "📧", label: "Email", value: "neurixmedical@gmail.com" },
+              { icon: "📱", label: "WhatsApp", value: "+62 858 2127 6673" },
+              { icon: "📍", label: "Location", value: "Makassar, Indonesia" }
             ].map((c) => (
               <div key={c.label} style={{ display: "flex", gap: 12, marginBottom: 20 }}>
                 <span style={{ fontSize: 24 }}>{c.icon}</span>
