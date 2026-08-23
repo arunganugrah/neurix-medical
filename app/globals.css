@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+:root {
+  --paper: #F6F1E7;
+  --navy: #0B2A4A;
+  --navy-deep: #081E38;
+  --gold: #D9952F;
+  --gold-soft: #E8B04B;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: var(--paper); -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+/* Transisi halaman (sama seperti proyek MedMind) */
+@keyframes nx-fade-up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes nx-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes nx-pop { 0% { opacity: 0; transform: scale(.96); } 100% { opacity: 1; transform: scale(1); } }
+.nx-page { animation: nx-fade-up .45s cubic-bezier(.22,.61,.36,1) both; }
+.nx-fade { animation: nx-fade .6s ease both; }
+.nx-pop  { animation: nx-pop .4s cubic-bezier(.22,.61,.36,1) both; }
+
+.nx-stagger > * { animation: nx-fade-up .5s cubic-bezier(.22,.61,.36,1) both; }
+.nx-stagger > *:nth-child(1){animation-delay:.04s}.nx-stagger > *:nth-child(2){animation-delay:.10s}
+.nx-stagger > *:nth-child(3){animation-delay:.16s}.nx-stagger > *:nth-child(4){animation-delay:.22s}
+.nx-stagger > *:nth-child(5){animation-delay:.28s}.nx-stagger > *:nth-child(6){animation-delay:.34s}
+
+.nx-lift { transition: transform .2s ease, box-shadow .2s ease; }
+.nx-lift:hover { transform: translateY(-3px); box-shadow: 0 10px 30px -12px rgba(11,42,74,.25); }
+
+@media (prefers-reduced-motion: reduce) {
+  .nx-page,.nx-fade,.nx-pop,.nx-stagger > * { animation: none; }
+  .nx-lift:hover { transform: none; }
+}
