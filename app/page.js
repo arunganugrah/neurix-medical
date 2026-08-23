@@ -11,7 +11,13 @@ const sans = { fontFamily: "'Hanken Grotesk', system-ui, sans-serif" };
 
 function Logo({ size = 34 }) {
   return (
-    <img src="/Users/arunganugrah/Projects/neurix-medical/public:/image-to-logo-result-vector.svg" alt="Neurix Medical" width={28} height={28} style={{ objectFit: "contain" }} />
+    <img 
+      src="/logo-neurix.svg" 
+      alt="Neurix Medical" 
+      width={size} 
+      height={size} 
+      style={{ objectFit: "contain" }} 
+    />
   );
 }
 
@@ -72,7 +78,7 @@ export default function LandingPage() {
           </div>
           <nav style={{ display: "flex", gap: 22 }} className="nx-nav-desktop">
             {NAV.map((n) => (
-              <a key={n} href="#" style={{ color: C.ink, fontSize: 13.5, fontWeight: 600, textDecoration: "none", letterSpacing: ".02em" }}>{n.toUpperCase()}</a>
+              <a key={n} href={`#${n.toLowerCase().replace(/\s/g, "-")}`} style={{ color: C.ink, fontSize: 13.5, fontWeight: 600, textDecoration: "none", letterSpacing: ".02em" }}>{n.toUpperCase()}</a>
             ))}
           </nav>
           <div style={{ display: "flex", gap: 10, flexShrink: 0 }}>
@@ -117,23 +123,159 @@ export default function LandingPage() {
               <NeuronArt />
             </div>
             <div style={{ position: "absolute", top: 18, right: -18, width: 230, background: C.navyDeep, color: "#fff", borderRadius: 18, padding: 16, boxShadow: "0 20px 40px -18px rgba(0,0,0,.5)" }} className="nx-promo-card">
-              <p style={{ color: C.gold, fontSize: 11, fontWeight: 700, letterSpacing: ".1em", margin: "0 0 10px" }}>OPENING PROMO</p>
+              <p style={{ color: C.gold, fontSize: 11, fontWeight: 700, letterSpacing: ".1em", margin: "0 0 10px" }}>PROMO SPESIAL</p>
               <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
-                <span style={{ fontSize: 16 }}>🏅</span>
+                <span style={{ fontSize: 16 }}>✨</span>
                 <div>
-                  <div style={{ fontWeight: 700, fontSize: 13 }}>EARLY BIRD</div>
-                  <div style={{ fontSize: 11.5, opacity: .8 }}>Diskon untuk 3 pendaftar pertama yang mengajak teman.</div>
+                  <div style={{ fontWeight: 700, fontSize: 13 }}>DAFTAR 3 BLOK</div>
+                  <div style={{ fontSize: 11.5, opacity: .8 }}>Langsung jadi member Neurix seumur hidup!</div>
                 </div>
               </div>
               <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-                <span style={{ fontSize: 16 }}>🎂</span>
+                <span style={{ fontSize: 16 }}>⏰</span>
                 <div>
-                  <div style={{ fontWeight: 700, fontSize: 13 }}>BIRTHDAY SPECIAL</div>
-                  <div style={{ fontSize: 11.5, opacity: .8 }}>Dapatkan special discount di bulan ulang tahunmu.</div>
+                  <div style={{ fontWeight: 700, fontSize: 13 }}>WAKTU TERBATAS</div>
+                  <div style={{ fontSize: 11.5, opacity: .8 }}>Promo valid sampai akhir bulan September 2026.</div>
                 </div>
               </div>
-              <button style={{ width: "100%", border: `1px solid ${C.gold}`, background: "none", color: C.gold, borderRadius: 10, padding: "8px 0", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>LIHAT PROMO LAINNYA</button>
+              <button style={{ width: "100%", border: `1px solid ${C.gold}`, background: "none", color: C.gold, borderRadius: 10, padding: "8px 0", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>DAFTAR SEKARANG</button>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* PROGRAMS SECTION */}
+      <section id="programs" style={{ maxWidth: 1200, margin: "0 auto", padding: "60px 24px", background: C.paper }}>
+        <h2 style={{ ...serif, color: C.navy, fontSize: 32, textAlign: "center", marginBottom: 40 }}>Our Programs</h2>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 20 }}>
+          <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 18, padding: 24, textAlign: "center" }}>
+            <div style={{ fontSize: 40, marginBottom: 12 }}>📚</div>
+            <h3 style={{ ...serif, color: C.navy, margin: "0 0 8px" }}>Pre-Klinik</h3>
+            <p style={{ color: C.inkSoft, fontSize: 14, lineHeight: 1.6 }}>Materi dasar anatomi, fisiologi, biokimia dan keterampilan klinis dasar.</p>
+          </div>
+          <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 18, padding: 24, textAlign: "center" }}>
+            <div style={{ fontSize: 40, marginBottom: 12 }}>🏥</div>
+            <h3 style={{ ...serif, color: C.navy, margin: "0 0 8px" }}>Klinik</h3>
+            <p style={{ color: C.inkSoft, fontSize: 14, lineHeight: 1.6 }}>Topik kedokteran klinis, case discussions, dan persiapan uji kompetensi.</p>
+          </div>
+          <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 18, padding: 24, textAlign: "center" }}>
+            <div style={{ fontSize: 40, marginBottom: 12 }}>🎓</div>
+            <h3 style={{ ...serif, color: C.navy, margin: "0 0 8px" }}>Magang & Riset</h3>
+            <p style={{ color: C.inkSoft, fontSize: 14, lineHeight: 1.6 }}>Persiapan internship, research writing, dan publikasi ilmiah.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ACADEMIC SUPPORT SECTION */}
+      <section id="academic-support" style={{ maxWidth: 1200, margin: "0 auto", padding: "60px 24px", background: C.card }}>
+        <h2 style={{ ...serif, color: C.navy, fontSize: 32, textAlign: "center", marginBottom: 40 }}>Academic Support</h2>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 40, alignItems: "center" }}>
+          <div>
+            <h3 style={{ ...serif, color: C.gold, fontSize: 20, marginBottom: 16 }}>Kami Menyediakan:</h3>
+            {["Video pembelajaran interaktif", "Quiz dan Try Out", "Materials & Resources", "1-on-1 Consultation", "Study Groups", "Progress Tracking"].map((item) => (
+              <div key={item} style={{ display: "flex", gap: 12, marginBottom: 16, alignItems: "center" }}>
+                <span style={{ fontSize: 20, color: C.gold }}>✓</span>
+                <span style={{ fontSize: 15, color: C.ink }}>{item}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ background: C.navy, borderRadius: 18, padding: 40, color: "#fff", textAlign: "center" }}>
+            <div style={{ fontSize: 48, marginBottom: 16 }}>🎯</div>
+            <p style={{ fontSize: 16, lineHeight: 1.8, margin: 0 }}>Fokus kami adalah membantu kamu menguasai topik dengan pemahaman mendalam, bukan hanya menghafal.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* MEMBERSHIP SECTION */}
+      <section id="membership" style={{ maxWidth: 1200, margin: "0 auto", padding: "60px 24px", background: C.paper }}>
+        <h2 style={{ ...serif, color: C.navy, fontSize: 32, textAlign: "center", marginBottom: 40 }}>Membership Tiers</h2>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: 20 }}>
+          {[
+            { tier: "Gold Member", price: "Rp 299K", features: ["Akses 50+ topics", "Quiz unlimited", "Consultation 2x/bulan"] },
+            { tier: "Silver Member", price: "Rp 599K", features: ["Akses all topics", "Quiz unlimited", "Consultation 4x/bulan", "Priority support"] },
+            { tier: "Platinum Member", price: "Rp 999K", features: ["Akses all + premium", "Group sessions", "Consultation unlimited", "VIP support", "Research guidance"] }
+          ].map((m) => (
+            <div key={m.tier} style={{ background: C.card, border: `2px solid ${C.gold}`, borderRadius: 18, padding: 24, textAlign: "center" }}>
+              <h3 style={{ ...serif, color: C.navy, margin: "0 0 8px" }}>{m.tier}</h3>
+              <div style={{ fontSize: 24, fontWeight: 700, color: C.gold, marginBottom: 20 }}>{m.price}</div>
+              <ul style={{ textAlign: "left", fontSize: 14, color: C.ink, listStyle: "none", padding: 0, marginBottom: 20 }}>
+                {m.features.map((f) => <li key={f} style={{ marginBottom: 8 }}>✓ {f}</li>)}
+              </ul>
+              <button style={{ width: "100%", background: C.navy, color: "#fff", border: "none", borderRadius: 10, padding: 12, fontWeight: 700, cursor: "pointer" }}>Pilih Paket</button>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* RESOURCES SECTION */}
+      <section id="resources" style={{ maxWidth: 1200, margin: "0 auto", padding: "60px 24px", background: C.card }}>
+        <h2 style={{ ...serif, color: C.navy, fontSize: 32, textAlign: "center", marginBottom: 40 }}>Resources</h2>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16 }}>
+          {[
+            { title: "10K+ E-Books", desc: "Medical textbooks & references" },
+            { title: "Video Library", desc: "1000+ hours of content" },
+            { title: "Study Guides", desc: "Ringkasan per topik" },
+            { title: "Case Studies", desc: "Real clinical scenarios" },
+            { title: "Journal Articles", desc: "Latest research" },
+            { title: "Tools & Calculators", desc: "Medical calculators online" }
+          ].map((r) => (
+            <div key={r.title} style={{ background: C.paper, border: `1px solid ${C.line}`, borderRadius: 12, padding: 20, textAlign: "center" }}>
+              <h4 style={{ color: C.navy, margin: "0 0 6px" }}>{r.title}</h4>
+              <p style={{ color: C.inkSoft, fontSize: 13, margin: 0 }}>{r.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ABOUT US SECTION */}
+      <section id="about-us" style={{ maxWidth: 1200, margin: "0 auto", padding: "60px 24px", background: C.paper }}>
+        <h2 style={{ ...serif, color: C.navy, fontSize: 32, textAlign: "center", marginBottom: 20 }}>Tentang Neurix Medical</h2>
+        <div style={{ maxWidth: 700, margin: "0 auto", textAlign: "center", marginBottom: 40 }}>
+          <p style={{ color: C.inkSoft, fontSize: 16, lineHeight: 1.8 }}>
+            Neurix Medical adalah platform pembelajaran yang didirikan oleh dokter dan pendidik untuk membantu mahasiswa kedokteran belajar secara efektif, sistematis, dan berbasis bukti ilmiah.
+          </p>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 20 }}>
+          {[
+            { label: "Founded", value: "2024" },
+            { label: "Students", value: "500+" },
+            { label: "Topics", value: "150+" },
+            { label: "Mentors", value: "30+" }
+          ].map((stat) => (
+            <div key={stat.label} style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 14, padding: 20, textAlign: "center" }}>
+              <div style={{ fontSize: 24, fontWeight: 700, color: C.gold, marginBottom: 4 }}>{stat.value}</div>
+              <div style={{ color: C.inkSoft, fontSize: 13 }}>{stat.label}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* CONTACT SECTION */}
+      <section id="contact" style={{ maxWidth: 1200, margin: "0 auto", padding: "60px 24px", background: C.card }}>
+        <h2 style={{ ...serif, color: C.navy, fontSize: 32, textAlign: "center", marginBottom: 40 }}>Hubungi Kami</h2>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 40, maxWidth: 900, margin: "0 auto" }}>
+          <div>
+            <h3 style={{ ...serif, color: C.gold, marginBottom: 20 }}>Contact Info</h3>
+            {[
+              { icon: "📧", label: "Email", value: "hello@neurixmedical.com" },
+              { icon: "📱", label: "WhatsApp", value: "+62 812 3456 7890" },
+              { icon: "📍", label: "Location", value: "Jakarta, Indonesia" }
+            ].map((c) => (
+              <div key={c.label} style={{ display: "flex", gap: 12, marginBottom: 20 }}>
+                <span style={{ fontSize: 24 }}>{c.icon}</span>
+                <div>
+                  <div style={{ fontWeight: 700, color: C.navy }}>{c.label}</div>
+                  <div style={{ color: C.inkSoft }}>{c.value}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div>
+            <h3 style={{ ...serif, color: C.gold, marginBottom: 20 }}>Send Message</h3>
+            <input type="text" placeholder="Your name" style={{ width: "100%", padding: 12, marginBottom: 12, borderRadius: 10, border: `1px solid ${C.line}` }} />
+            <input type="email" placeholder="Your email" style={{ width: "100%", padding: 12, marginBottom: 12, borderRadius: 10, border: `1px solid ${C.line}` }} />
+            <textarea placeholder="Your message" rows={4} style={{ width: "100%", padding: 12, marginBottom: 12, borderRadius: 10, border: `1px solid ${C.line}`, fontFamily: "inherit" }} />
+            <button style={{ width: "100%", background: C.navy, color: "#fff", border: "none", borderRadius: 10, padding: 12, fontWeight: 700, cursor: "pointer" }}>Kirim Pesan</button>
           </div>
         </div>
       </section>

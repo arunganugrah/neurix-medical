@@ -154,7 +154,14 @@ function Sidebar({ view, go, logout }) {
   return (
     <aside style={{ width: 232, flexShrink: 0, background: C.card, borderRight: `1px solid ${C.line}`, minHeight: "100vh", padding: "20px 14px", position: "sticky", top: 0 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px 18px" }}>
-        <img src="/Users/arunganugrah/Projects/neurix-medical/public:/image-to-logo-result-vector.svg" alt="Neurix Medical" width={28} height={28} style={{ objectFit: "contain" }} />
+        <img 
+          src="/logo-neurix.svg" 
+          alt="Neurix Medical" 
+          width={28} 
+          height={28} 
+          style={{ objectFit: "contain" }} 
+        />
+
         <div>
           <div style={{ ...serif, color: C.navy, fontWeight: 700, fontSize: 15, lineHeight: 1 }}>NEURIX</div>
           <div style={{ color: C.gold, fontSize: 9, letterSpacing: ".16em", fontWeight: 700 }}>MEDICAL</div>
