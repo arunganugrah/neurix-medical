@@ -7,48 +7,248 @@
   --gold: #D9952F;
   --gold-soft: #E8B04B;
 }
+
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; background: var(--paper); -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-.nx-hamburger { display: none; }
-.nx-backdrop { display: none; }
 
+/* HAMBURGER MENU */
+.nx-hamburger { 
+  display: none; 
+  align-items: center;
+  justify-content: center;
+}
+.nx-hamburger:hover {
+  opacity: 0.8;
+}
+
+.nx-backdrop { 
+  display: none; 
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 40;
+}
+
+.nx-backdrop.active { display: block; }
+
+/* DESKTOP - NAVIGATION */
+.nx-nav-desktop {
+  display: flex !important;
+}
+
+.nx-nav-mobile {
+  display: none !important;
+}
+
+/* ========== TABLET & MOBILE (880px ke bawah) ========== */
 @media (max-width: 880px) {
+  /* Hide desktop nav, show hamburger */
+  .nx-nav-desktop {
+    display: none !important;
+  }
+  
+    .nx-hamburger {
+    display: flex;
+  }
+
+  .nx-header-buttons {
+    display: none !important;
+  }
+
+  /* SIDEBAR DASHBOARD */
   .nx-sidebar {
     position: fixed;
     top: 0;
     left: 0;
+    width: 232px;
     height: 100vh;
     z-index: 50;
     transform: translateX(-100%);
-    transition: transform .25s ease;
+    transition: transform 0.25s ease;
+    overflow-y: auto;
   }
-  .nx-sidebar.nx-sidebar-open { transform: translateX(0); }
-  .nx-hamburger { display: flex; }
-  .nx-main { padding: 76px 16px 40px !important; }
-  .nx-backdrop { display: block; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 40; }
+
+  .nx-sidebar.nx-sidebar-open {
+    transform: translateX(0);
+  }
+
+  /* MAIN CONTENT PADDING */
+  .nx-main {
+    padding: 76px 16px 40px !important;
+  }
+
+  .nx-backdrop.active {
+    display: block;
+  }
+
+  /* HERO GRID */
+  .nx-hero-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* LANDING PAGE HEADER FIX */
+  header {
+    padding: 12px 16px !important;
+  }
+
+    .nx-header-row {
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+  }
+
+  .nx-stagger {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* BUTTONS - make them full width on small screens */
+  button {
+    font-size: 13px !important;
+  }
 }
 
+/* ========== MOBILE (600px ke bawah) ========== */
 @media (max-width: 600px) {
-  .nx-hero-grid { grid-template-columns: 1fr !important; }
+  body {
+    font-size: 14px;
+  }
+
+  h1 {
+    font-size: clamp(28px, 5vw, 38px) !important;
+  }
+
+  h2 {
+    font-size: 20px !important;
+  }
+
+  /* Sidebar width lebih sempit */
+  .nx-sidebar {
+    width: 200px;
+  }
+
+  /* Main padding lebih ketat */
+  .nx-main {
+    padding: 60px 12px 40px !important;
+  }
+
+  /* LANDING PAGE */
+  header > div {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .nx-hero-grid {
+    grid-template-columns: 1fr !important;
+    gap: 24px !important;
+    padding: 24px 16px !important;
+  }
+
+  /* Grid items jadi single column */
+  .nx-stagger {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  /* Card sections */
+  section > div {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  /* Buttons */
+  a[href],
+  button {
+    padding: 11px 14px !important;
+    font-size: 12px !important;
+  }
+
+  /* Form inputs */
+  input, textarea, select {
+    font-size: 16px !important; /* Prevents zoom on iOS */
+    padding: 12px !important;
+  }
+
+  /* Admin panel adjustments */
+  .nx-sidebar {
+    width: 180px;
+  }
+
+  .nx-main {
+    padding: 60px 12px 60px !important;
+  }
 }
 
-/* Transisi halaman (sama seperti proyek MedMind) */
-@keyframes nx-fade-up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes nx-fade { from { opacity: 0; } to { opacity: 1; } }
-@keyframes nx-pop { 0% { opacity: 0; transform: scale(.96); } 100% { opacity: 1; transform: scale(1); } }
-.nx-page { animation: nx-fade-up .45s cubic-bezier(.22,.61,.36,1) both; }
-.nx-fade { animation: nx-fade .6s ease both; }
-.nx-pop  { animation: nx-pop .4s cubic-bezier(.22,.61,.36,1) both; }
+/* ========== TRANSISI & ANIMASI ========== */
+@keyframes nx-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
-.nx-stagger > * { animation: nx-fade-up .5s cubic-bezier(.22,.61,.36,1) both; }
-.nx-stagger > *:nth-child(1){animation-delay:.04s}.nx-stagger > *:nth-child(2){animation-delay:.10s}
-.nx-stagger > *:nth-child(3){animation-delay:.16s}.nx-stagger > *:nth-child(4){animation-delay:.22s}
-.nx-stagger > *:nth-child(5){animation-delay:.28s}.nx-stagger > *:nth-child(6){animation-delay:.34s}
+@keyframes nx-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
 
-.nx-lift { transition: transform .2s ease, box-shadow .2s ease; }
-.nx-lift:hover { transform: translateY(-3px); box-shadow: 0 10px 30px -12px rgba(11,42,74,.25); }
+@keyframes nx-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
 
+.nx-page {
+  animation: nx-fade-up 0.45s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+.nx-fade {
+  animation: nx-fade 0.6s ease both;
+}
+
+.nx-pop {
+  animation: nx-pop 0.4s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+.nx-stagger > * {
+  animation: nx-fade-up 0.5s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+.nx-stagger > *:nth-child(1) { animation-delay: 0.04s; }
+.nx-stagger > *:nth-child(2) { animation-delay: 0.10s; }
+.nx-stagger > *:nth-child(3) { animation-delay: 0.16s; }
+.nx-stagger > *:nth-child(4) { animation-delay: 0.22s; }
+.nx-stagger > *:nth-child(5) { animation-delay: 0.28s; }
+.nx-stagger > *:nth-child(6) { animation-delay: 0.34s; }
+
+/* HOVER EFFECTS */
+.nx-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.nx-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px -12px rgba(11, 42, 74, 0.25);
+}
+
+/* Reduce motion */
 @media (prefers-reduced-motion: reduce) {
-  .nx-page,.nx-fade,.nx-pop,.nx-stagger > * { animation: none; }
-  .nx-lift:hover { transform: none; }
+  .nx-page,
+  .nx-fade,
+  .nx-pop,
+  .nx-stagger > * {
+    animation: none;
+  }
+
+  .nx-lift:hover {
+    transform: none;
+  }
 }

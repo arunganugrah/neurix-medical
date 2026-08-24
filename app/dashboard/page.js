@@ -88,6 +88,27 @@ export default function DashboardPage() {
   const [data, setData] = useState({ categories: [], classes: [], materials: [], videos: [], quizzes: [], announcements: [], assignments: [] })
 
   useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 880) {
+        setMenuOpen(false);
+      }
+    };
+    
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    const v = localStorage.getItem("neurix_voucher");
+    if (!v) { router.replace("/login"); return; }
+    setName(localStorage.getItem("neurix_name") || "Student");
+    setTier(localStorage.getItem("neurix_tier") || "Gold Member");
+    try { const a = localStorage.getItem("neurix_access"); setAccess(a ? JSON.parse(a) : "all"); } catch { setAccess("all"); }
+    setProgress(loadProgress());
+    setAuthed(true);
+  }, [router]);
+
+  useEffect(() => {
     const v = localStorage.getItem("neurix_voucher");
     if (!v) { router.replace("/login"); return; }
     setName(localStorage.getItem("neurix_name") || "Student");
@@ -130,15 +151,50 @@ export default function DashboardPage() {
   const masteredCount = Object.values(progress.topics).filter((t) => t.mastered).length;
   const overallPct = data.quizzes.length ? Math.round((masteredCount / data.quizzes.length) * 100) : 0;
 
-  return (
-  <div style={{ ...sans, background: C.paper, minHeight: "100vh", display: "flex" }}>
-    <button className="nx-hamburger" onClick={() => setMenuOpen(true)} style={{
-      position: "fixed", top: 14, left: 14, zIndex: 60, alignItems: "center", justifyContent: "center",
-      width: 42, height: 42, borderRadius: 10, background: C.navy, color: "#fff", border: "none", cursor: "pointer", fontSize: 18,
-    }}>☰</button>
-    {menuOpen && <div className="nx-backdrop" onClick={() => setMenuOpen(false)} />}
-    <Sidebar view={view} go={go} logout={logout} menuOpen={menuOpen} />
-    <main className="nx-main" style={{ flex: 1, padding: "24px 28px 60px", maxWidth: 1200 }}>
+    return (
+    <div style={{ ...sans, background: C.paper, minHeight: "100vh", display: "flex" }}>
+      {/* HAMBURGER BUTTON */}
+      <button 
+        className="nx-hamburger" 
+        onClick={() => setMenuOpen(true)} 
+        style={{
+          position: "fixed", 
+          top: 14, 
+          left: 14, 
+          zIndex: 60, 
+          alignItems: "center", 
+          justifyContent: "center",
+          width: 42, 
+          height: 42, 
+          borderRadius: 10, 
+          background: C.navy, 
+          color: "#fff", 
+          border: "none", 
+          cursor: "pointer", 
+          fontSize: 18,
+        }}>
+        ☰
+      </button>
+
+      {/* BACKDROP - Close menu when clicked */}
+      {menuOpen && (
+        <div 
+          className="nx-backdrop active"
+          onClick={() => setMenuOpen(false)} 
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,.5)",
+            zIndex: 40
+          }}
+        />
+      )}
+
+      {/* SIDEBAR */}
+      <Sidebar view={view} go={go} logout={logout} menuOpen={menuOpen} />
+
+      {/* MAIN CONTENT */}
+      <main className="nx-main" style={{ flex: 1, padding: "24px 28px 60px", maxWidth: 1200 }}>
         {loading ? (
           <p style={{ color: C.inkSoft, padding: "60px 0", textAlign: "center" }}>Memuat konten…</p>
         ) : (
@@ -165,15 +221,24 @@ export default function DashboardPage() {
 
 function Sidebar({ view, go, logout, menuOpen }) {
   return (
-    <aside className={`nx-sidebar ${menuOpen ? "nx-sidebar-open" : ""}`} style={{
-      width: 232, flexShrink: 0, minHeight: "100vh", padding: "20px 14px", position: "sticky", top: 0,
-      background: "linear-gradient(180deg, #0B2A4A 0%, #143A63 55%, #0B2A4A 100%)",
-    }}>
+    <aside 
+      className={`nx-sidebar ${menuOpen ? "nx-sidebar-open" : ""}`} 
+      style={{
+        width: 232, 
+        flexShrink: 0, 
+        minHeight: "100vh", 
+        padding: "20px 14px", 
+        position: "sticky", 
+        top: 0,
+        background: "linear-gradient(180deg, #0B2A4A 0%, #143A63 55%, #0B2A4A 100%)",
+        display: "flex",
+        flexDirection: "column"
+      }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px 18px" }}>
         <img src="/logo-neurix.svg" alt="Neurix Medical" width={28} height={28} style={{ objectFit: "contain" }} />
         <div>
           <div style={{ ...serif, color: "#fff", fontWeight: 700, fontSize: 15, lineHeight: 1 }}>NEURIX</div>
-          <div style={{ color: C.gold, fontSize: 9, letterSpacing: ".16em", fontWeight: 700 }}>MEDICAL</div>
+          <div style={{ color: "#D9952F", fontSize: 9, letterSpacing: ".16em", fontWeight: 700 }}>MEDICAL</div>
         </div>
       </div>
       <nav style={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -185,7 +250,7 @@ function Sidebar({ view, go, logout, menuOpen }) {
                 display: "flex", alignItems: "center", gap: 10, textAlign: "left", padding: "9px 12px", borderRadius: 10,
                 border: "none", cursor: "pointer", fontSize: 13.5, fontWeight: active ? 700 : 500,
                 background: active ? "rgba(217,149,47,0.22)" : "transparent",
-                color: active ? C.gold : "rgba(255,255,255,0.78)",
+                color: active ? "#D9952F" : "rgba(255,255,255,0.78)",
               }}>
               <span>{n.icon}</span>{n.label}
             </button>

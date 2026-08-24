@@ -68,7 +68,8 @@ export default function LandingPage() {
     <div style={{ ...sans, background: C.paper, color: C.ink, minHeight: "100vh" }}>
       {/* Header */}
       <header style={{ borderBottom: `1px solid ${C.line}`, background: C.paper, position: "sticky", top: 0, zIndex: 30 }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "14px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+        <div className="nx-header-row" style={{ maxWidth: 1200, margin: "0 auto", padding: "14px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+          {/* LOGO - SELALU VISIBLE */}
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <Logo />
             <div>
@@ -76,17 +77,75 @@ export default function LandingPage() {
               <div style={{ color: C.gold, fontSize: 10, letterSpacing: ".18em", fontWeight: 600 }}>MEDICAL</div>
             </div>
           </div>
-          <nav style={{ display: "flex", gap: 22 }} className="nx-nav-desktop">
+
+          {/* DESKTOP NAV */}
+          <nav className="nx-nav-desktop" style={{ display: "flex", gap: 22 }}>
             {NAV.map((n) => (
-              <a key={n} href={`#${n.toLowerCase().replace(/\s/g, "-")}`} style={{ color: C.ink, fontSize: 13.5, fontWeight: 600, textDecoration: "none", letterSpacing: ".02em" }}>{n.toUpperCase()}</a>
+              <a key={n} href={`#${n.toLowerCase().replace(/\s/g, "-")}`} style={{ color: C.ink, fontSize: 13.5, fontWeight: 600, textDecoration: "none", letterSpacing: ".02em" }}>
+                {n.toUpperCase()}
+              </a>
             ))}
           </nav>
-          <div style={{ display: "flex", gap: 10, flexShrink: 0 }}>
+
+          {/* DESKTOP BUTTONS */}
+          <div className="nx-header-buttons" style={{ display: "flex", gap: 10, flexShrink: 0 }}>
             <a href="/login" style={{ border: `1.5px solid ${C.navy}`, color: C.navy, borderRadius: 10, padding: "9px 18px", fontWeight: 700, fontSize: 13.5, textDecoration: "none" }}>LOGIN</a>
             <a href="/login" style={{ background: C.gold, color: "#1C2430", borderRadius: 10, padding: "9px 18px", fontWeight: 700, fontSize: 13.5, textDecoration: "none" }}>REGISTER</a>
           </div>
+
+          {/* HAMBURGER MENU */}
+          <button 
+            className="nx-hamburger"
+            onClick={() => setMenuOpen(!menuOpen)}
+            style={{ 
+              background: C.navy, 
+              color: "#fff", 
+              border: "none", 
+              borderRadius: 10, 
+              width: 44, 
+              height: 44, 
+              cursor: "pointer", 
+              fontSize: 20
+            }}>
+            {menuOpen ? "✕" : "☰"}
+          </button>
         </div>
+
+        {/* MOBILE MENU */}
+        {menuOpen && (
+          <div style={{ background: C.navy, padding: "16px 24px", display: "flex", flexDirection: "column", gap: 10 }}>
+            {NAV.map((n) => (
+              <a 
+                key={n} 
+                href={`#${n.toLowerCase().replace(/\s/g, "-")}`} 
+                onClick={() => setMenuOpen(false)}
+                style={{ 
+                  color: "#fff", 
+                  fontSize: 13.5, 
+                  fontWeight: 600, 
+                  textDecoration: "none", 
+                  padding: "8px 0",
+                  borderBottom: `1px solid rgba(255,255,255,0.1)`
+                }}>
+                {n.toUpperCase()}
+              </a>
+            ))}
+            <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
+              <a href="/login" onClick={() => setMenuOpen(false)} style={{ flex: 1, border: `1.5px solid ${C.gold}`, color: C.gold, borderRadius: 10, padding: "9px 12px", fontWeight: 700, fontSize: 12, textDecoration: "none", textAlign: "center" }}>LOGIN</a>
+              <a href="/login" onClick={() => setMenuOpen(false)} style={{ flex: 1, background: C.gold, color: "#1C2430", borderRadius: 10, padding: "9px 12px", fontWeight: 700, fontSize: 12, textDecoration: "none", textAlign: "center" }}>REGISTER</a>
+            </div>
+          </div>
+        )}
       </header>
+
+      {/* BACKDROP */}
+      {menuOpen && (
+        <div 
+          className="nx-backdrop active"
+          onClick={() => setMenuOpen(false)}
+          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 25 }}
+        />
+      )}
 
       {/* Hero */}
       <section style={{ maxWidth: 1200, margin: "0 auto", padding: "56px 24px 40px" }}>
