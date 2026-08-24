@@ -151,7 +151,7 @@ git push -u origin main
 ### C4. Update di Masa Mendatang
 ```bash
 git add .
-git commit -m "update: deskripsi perubahan"
+git commit -m "update: layout"
 git push
 ```
 Vercel otomatis deploy ulang. Menambah kelas/materi/kuis lewat `/admin` tidak perlu push — langsung tersimpan ke Firebase.
