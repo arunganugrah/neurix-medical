@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 const C = {
   navy: "#0B2A4A", navyDeep: "#081E38", gold: "#D9952F", goldSoft: "#E8B04B",
-  paper: "#F6F1E7", ink: "#1C2430", inkSoft: "#5B6B7A", line: "#E4DFD2", card: "#FFFFFF",
+  paper: "#F7F8FA", ink: "#1C2430", inkSoft: "#5B6B7A", line: "#E4DFD2", card: "#FFFFFF",
 };
 const serif = { fontFamily: "'Fraunces', Georgia, serif" };
 const sans = { fontFamily: "'Hanken Grotesk', system-ui, sans-serif" };
@@ -118,77 +118,19 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="nx-pop" style={{ position: "relative" }}>
-  <div style={{ borderRadius: 24, overflow: "hidden", boxShadow: "0 30px 70px -30px rgba(11,42,74,.4)" }}>
-    <img 
-      src="/logo-neurix.svg" 
-      alt="Neurix Medical Logo" 
-      style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }} 
-    />
-  </div>
-
-  {/* POPUP 1: EARLY BIRD & BIRTHDAY - KIRI ATAS */}
-  <div style={{ position: "absolute", top: -30, left: -40, width: 240, background: C.navyDeep, color: "#fff", borderRadius: 18, padding: 16, boxShadow: "0 20px 40px -18px rgba(0,0,0,.5)" }} className="nx-promo-card">
-    <p style={{ color: C.gold, fontSize: 11, fontWeight: 700, letterSpacing: ".1em", margin: "0 0 12px" }}>PROMO SPESIAL</p>
-    
-    <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-      <span style={{ fontSize: 16 }}>🎯</span>
-      <div>
-        <div style={{ fontWeight: 700, fontSize: 13 }}>EARLY BIRD</div>
-        <div style={{ fontSize: 11.5, opacity: .8 }}>Diskon khusus 3 pendaftar pertama yang mengajak teman bergabung</div>
-      </div>
-    </div>
-    
-    <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-      <span style={{ fontSize: 16 }}>🎂</span>
-      <div>
-        <div style={{ fontWeight: 700, fontSize: 13 }}>BIRTHDAY SPECIAL</div>
-        <div style={{ fontSize: 11.5, opacity: .8 }}>Dapatkan special discount di bulan ulang tahunmu</div>
-      </div>
-    </div>
-    
-    <button style={{ width: "100%", border: `1px solid ${C.gold}`, background: "none", color: C.gold, borderRadius: 10, padding: "8px 0", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>LIHAT PROMO</button>
-  </div>
-
-  {/* POPUP 2: NEURIX MEMBERSHIP - KANAN TENGAH */}
-  <div style={{ position: "absolute", top: 40, right: -50, width: 260, background: C.navy, color: "#fff", borderRadius: 18, padding: 18, boxShadow: "0 20px 50px -20px rgba(0,0,0,.6)", border: `2px solid ${C.gold}` }} className="nx-promo-card">
-    <p style={{ color: C.gold, fontSize: 11, fontWeight: 700, letterSpacing: ".1em", margin: "0 0 14px" }}>EXCLUSIVE OFFER</p>
-    
-    <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
-      <span style={{ fontSize: 20 }}>👑</span>
-      <div>
-        <div style={{ fontWeight: 700, fontSize: 14, color: C.gold }}>NEURIX MEMBERSHIP</div>
-        <div style={{ fontSize: 12, opacity: .9, marginTop: 4 }}>Daftar 3 blok sekaligus</div>
-        <div style={{ fontSize: 12, opacity: .9 }}>Dapatkan akses khusus membership Neurix</div>
-      </div>
-    </div>
-    
-    <div style={{ background: "rgba(217, 149, 47, 0.2)", borderRadius: 10, padding: 10, marginBottom: 12 }}>
-      <div style={{ fontSize: 12, fontWeight: 700, color: C.gold, textAlign: "center" }}>Seumur Hidup! 🎉</div>
-    </div>
-    
-    <button style={{ width: "100%", background: C.gold, color: "#1C2430", border: "none", borderRadius: 10, padding: "10px 0", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>DAFTAR SEKARANG</button>
-  </div>
-</div>
-
-  {/* POPUP 3: PROMO DAFTAR 3 BLOK - KANAN BAWAH */}
-  <div style={{ position: "absolute", bottom: -50, right: -20, width: 260, background: C.gold, color: "#1C2430", borderRadius: 18, padding: 18, boxShadow: "0 20px 50px -20px rgba(0,0,0,.6)" }} className="nx-promo-card">
-    <p style={{ color: "#1C2430", fontSize: 11, fontWeight: 700, letterSpacing: ".1em", margin: "0 0 14px" }}>⏰ WAKTU TERBATAS</p>
-    
-    <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
-      <span style={{ fontSize: 20 }}>🚀</span>
-      <div>
-        <div style={{ fontWeight: 700, fontSize: 14 }}>DAFTAR 3 BLOK</div>
-        <div style={{ fontSize: 12, opacity: .85, marginTop: 4 }}>Langsung jadi member Neurix seumur hidup!</div>
-      </div>
-    </div>
-    
-    <div style={{ background: "rgba(28, 36, 48, 0.15)", borderRadius: 10, padding: 10, marginBottom: 12, textAlign: "center" }}>
-      <div style={{ fontSize: 11, fontWeight: 700 }}>Valid sampai akhir September 2026</div>
-    </div>
-    
-    <button style={{ width: "100%", background: "#1C2430", color: C.gold, border: "none", borderRadius: 10, padding: "10px 0", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>DAFTAR SEKARANG</button>
-  </div>
+                    <div className="nx-pop" style={{ position: "relative" }}>
+            <div style={{
+              borderRadius: 24, overflow: "hidden", boxShadow: "0 30px 70px -30px rgba(11,42,74,.4)",
+              background: "radial-gradient(circle at 50% 35%, #173F66 0%, #081E38 100%)",
+              aspectRatio: "4 / 3.2", display: "flex", alignItems: "center", justifyContent: "center", padding: 40,
+            }}>
+              <img
+                src="/logo-neurix.svg"
+                alt="Neurix Medical Logo"
+                style={{ width: "45%", maxWidth: 180, objectFit: "contain" }}
+              />
+            </div>
+          </div>
         </div>
       </section>
       

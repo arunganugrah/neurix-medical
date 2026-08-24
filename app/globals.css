@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  --paper: #F6F1E7;
+  --paper: #F7F8FA;
   --navy: #0B2A4A;
   --navy-deep: #081E38;
   --gold: #D9952F;
@@ -9,6 +9,28 @@
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; background: var(--paper); -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+.nx-hamburger { display: none; }
+.nx-backdrop { display: none; }
+
+@media (max-width: 880px) {
+  .nx-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 50;
+    transform: translateX(-100%);
+    transition: transform .25s ease;
+  }
+  .nx-sidebar.nx-sidebar-open { transform: translateX(0); }
+  .nx-hamburger { display: flex; }
+  .nx-main { padding: 76px 16px 40px !important; }
+  .nx-backdrop { display: block; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 40; }
+}
+
+@media (max-width: 600px) {
+  .nx-hero-grid { grid-template-columns: 1fr !important; }
+}
 
 /* Transisi halaman (sama seperti proyek MedMind) */
 @keyframes nx-fade-up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }

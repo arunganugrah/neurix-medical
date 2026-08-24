@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
-const C = { paper: "#F6F1E7", ink: "#1C2430", inkSoft: "#5B6B7A", navy: "#0B2A4A", gold: "#D9952F", line: "#E4DFD2", card: "#FFFFFF" };
+const C = { paper: "#F7F8FA", ink: "#1C2430", inkSoft: "#5B6B7A", navy: "#0B2A4A", gold: "#D9952F", line: "#E4DFD2", card: "#FFFFFF" };
 const serif = { fontFamily: "'Fraunces', Georgia, serif" };
 const sans = { fontFamily: "'Hanken Grotesk', system-ui, sans-serif" };
 

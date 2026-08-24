@@ -17,7 +17,7 @@ import { db } from "@/lib/firebase";
 
 const C = {
   navy: "#0B2A4A", navyDeep: "#081E38", gold: "#D9952F", goldSoft: "#E8B04B",
-  paper: "#F6F1E7", ink: "#1C2430", inkSoft: "#5B6B7A", line: "#E7E2D6", card: "#FFFFFF",
+  paper: "#F7F8FA", ink: "#1C2430", inkSoft: "#5B6B7A", line: "#E7E2D6", card: "#FFFFFF",
   good: "#2C7A55", bad: "#B23A2E",
 };
 const serif = { fontFamily: "'Fraunces', Georgia, serif" };
@@ -58,6 +58,11 @@ function ItemIcon({ value, fallback = "📄", size = 20 }) {
   return <span style={{ fontSize: size }}>{value || fallback}</span>;
 }
 
+function canAccess(access, catId) {
+  if (access === "all") return true;
+  if (Array.isArray(access)) return access.includes(catId);
+  return false;
+}
 const PKEY = "neurix_progress_v1";
 function loadProgress() { try { const r = localStorage.getItem(PKEY); return r ? JSON.parse(r) : { topics: {}, wrong: {} }; } catch { return { topics: {}, wrong: {} }; } }
 function saveProgress(p) { try { localStorage.setItem(PKEY, JSON.stringify(p)); } catch {} }
@@ -75,6 +80,8 @@ export default function DashboardPage() {
   const [authed, setAuthed] = useState(false);
   const [name, setName] = useState("Student");
   const [tier, setTier] = useState("Gold Member");
+  const [access, setAccess] = useState("all");
+  const [menuOpen, setMenuOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [view, setView] = useState({ name: "home" });
   const [progress, setProgress] = useState({ topics: {}, wrong: {} });
@@ -85,6 +92,7 @@ export default function DashboardPage() {
     if (!v) { router.replace("/login"); return; }
     setName(localStorage.getItem("neurix_name") || "Student");
     setTier(localStorage.getItem("neurix_tier") || "Gold Member");
+    try { const a = localStorage.getItem("neurix_access"); setAccess(a ? JSON.parse(a) : "all"); } catch { setAccess("all"); }
     setProgress(loadProgress());
     setAuthed(true);
   }, [router]);
@@ -113,7 +121,7 @@ export default function DashboardPage() {
     })();
   }, [authed]);
 
-  const go = (v) => { setView(v); window.scrollTo(0, 0); };
+  const go = (v) => { setView(v); setMenuOpen(false); window.scrollTo(0, 0); };
   const logout = () => { localStorage.removeItem("neurix_voucher"); localStorage.removeItem("neurix_access"); router.replace("/login"); };
   const onQuizDone = (quizId, score, total, wrongList) => setProgress(recordQuiz(quizId, score, total, wrongList));
 
@@ -123,22 +131,27 @@ export default function DashboardPage() {
   const overallPct = data.quizzes.length ? Math.round((masteredCount / data.quizzes.length) * 100) : 0;
 
   return (
-    <div style={{ ...sans, background: C.paper, minHeight: "100vh", display: "flex" }}>
-      <Sidebar view={view} go={go} logout={logout} />
-      <main style={{ flex: 1, padding: "24px 28px 60px", maxWidth: 1200 }}>
+  <div style={{ ...sans, background: C.paper, minHeight: "100vh", display: "flex" }}>
+    <button className="nx-hamburger" onClick={() => setMenuOpen(true)} style={{
+      position: "fixed", top: 14, left: 14, zIndex: 60, alignItems: "center", justifyContent: "center",
+      width: 42, height: 42, borderRadius: 10, background: C.navy, color: "#fff", border: "none", cursor: "pointer", fontSize: 18,
+    }}>☰</button>
+    {menuOpen && <div className="nx-backdrop" onClick={() => setMenuOpen(false)} />}
+    <Sidebar view={view} go={go} logout={logout} menuOpen={menuOpen} />
+    <main className="nx-main" style={{ flex: 1, padding: "24px 28px 60px", maxWidth: 1200 }}>
         {loading ? (
           <p style={{ color: C.inkSoft, padding: "60px 0", textAlign: "center" }}>Memuat konten…</p>
         ) : (
           <div className="nx-page" key={view.name + (view.id || "")}>
             {view.name === "home" && <Home C={C} data={data} name={name} tier={tier} overallPct={overallPct} progress={progress} go={go} />}
-            {view.name === "classes" && <ClassesView C={C} data={data} go={go} />}
-            {view.name === "materials" && <MaterialsView C={C} data={data} />}
-            {view.name === "videos" && <VideosView C={C} data={data} />}
-            {view.name === "quiz" && <QuizListView C={C} data={data} progress={progress} go={go} />}
+            {view.name === "classes" && <ClassesView C={C} data={data} access={access} go={go} />}
+            {view.name === "materials" && <MaterialsView C={C} data={data} access={access} />} 
+            {view.name === "videos" && <VideosView C={C} data={data} access={access} />}
+            {view.name === "quiz" && <QuizListView C={C} data={data} progress={progress} access={access} go={go} />}
             {view.name === "quizPlay" && <QuizPlayView C={C} data={data} quizId={view.id} go={go} onDone={onQuizDone} />}
             {view.name === "report" && <ReportView C={C} data={data} progress={progress} />}
             {view.name === "progress" && <ProgressView C={C} data={data} progress={progress} setProgress={setProgress} go={go} />}
-            {view.name === "assignments" && <AssignmentsView C={C} data={data} />}
+            {view.name === "assignments" && <AssignmentsView C={C} data={data} access={access} />}
 {view.name === "consultation" && <ConsultationView C={C} data={data} name={name} />}
 {view.name === "profile" && <ProfileView C={C} name={name} tier={tier} progress={progress} data={data} />}
 {view.name === "settings" && <SettingsView C={C} />}
@@ -150,20 +163,16 @@ export default function DashboardPage() {
   );
 }
 
-function Sidebar({ view, go, logout }) {
+function Sidebar({ view, go, logout, menuOpen }) {
   return (
-    <aside style={{ width: 232, flexShrink: 0, background: C.card, borderRight: `1px solid ${C.line}`, minHeight: "100vh", padding: "20px 14px", position: "sticky", top: 0 }}>
+    <aside className={`nx-sidebar ${menuOpen ? "nx-sidebar-open" : ""}`} style={{
+      width: 232, flexShrink: 0, minHeight: "100vh", padding: "20px 14px", position: "sticky", top: 0,
+      background: "linear-gradient(180deg, #0B2A4A 0%, #143A63 55%, #0B2A4A 100%)",
+    }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px 18px" }}>
-        <img 
-          src="/logo-neurix.svg" 
-          alt="Neurix Medical" 
-          width={28} 
-          height={28} 
-          style={{ objectFit: "contain" }} 
-        />
-
+        <img src="/logo-neurix.svg" alt="Neurix Medical" width={28} height={28} style={{ objectFit: "contain" }} />
         <div>
-          <div style={{ ...serif, color: C.navy, fontWeight: 700, fontSize: 15, lineHeight: 1 }}>NEURIX</div>
+          <div style={{ ...serif, color: "#fff", fontWeight: 700, fontSize: 15, lineHeight: 1 }}>NEURIX</div>
           <div style={{ color: C.gold, fontSize: 9, letterSpacing: ".16em", fontWeight: 700 }}>MEDICAL</div>
         </div>
       </div>
@@ -175,14 +184,15 @@ function Sidebar({ view, go, logout }) {
               style={{
                 display: "flex", alignItems: "center", gap: 10, textAlign: "left", padding: "9px 12px", borderRadius: 10,
                 border: "none", cursor: "pointer", fontSize: 13.5, fontWeight: active ? 700 : 500,
-                background: active ? C.navy : "transparent", color: active ? "#fff" : C.ink,
+                background: active ? "rgba(217,149,47,0.22)" : "transparent",
+                color: active ? C.gold : "rgba(255,255,255,0.78)",
               }}>
               <span>{n.icon}</span>{n.label}
             </button>
           );
         })}
       </nav>
-      <button onClick={logout} style={{ marginTop: 18, width: "100%", background: "none", border: `1px solid ${C.line}`, color: C.inkSoft, borderRadius: 10, padding: "9px 12px", cursor: "pointer", fontSize: 13 }}>
+      <button onClick={logout} style={{ marginTop: 18, width: "100%", background: "none", border: "1px solid rgba(255,255,255,0.25)", color: "rgba(255,255,255,0.75)", borderRadius: 10, padding: "9px 12px", cursor: "pointer", fontSize: 13 }}>
         ⏻ Keluar
       </button>
     </aside>
@@ -294,20 +304,22 @@ function ClassCard({ C, cl, data }) {
 }
 
 /* ---------- My Classes ---------- */
-function ClassesView({ C, data }) {
+function ClassesView({ C, data, access }) {
+  const visible = data.classes.filter((cl) => canAccess(access, cl.categoryId));
   return (
     <div>
       <h2 style={{ ...serif, color: C.navy, fontSize: 26, margin: "0 0 16px" }}>My Classes</h2>
-      {data.classes.length === 0 && <Empty C={C} text="Belum ada kelas." />}
+      {visible.length === 0 && <Empty C={C} text="Belum ada kelas yang termasuk paket Anda." />}
       <div className="nx-stagger" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 14 }}>
-        {data.classes.map((cl) => <ClassCard key={cl.id} C={C} cl={cl} data={data} />)}
+        {visible.map((cl) => <ClassCard key={cl.id} C={C} cl={cl} data={data} />)}
       </div>
     </div>
   );
 }
 
 /* ---------- Materials ---------- */
-function MaterialsView({ C, data }) {
+function MaterialsView({ C, data, access }) {
+  const visible = data.classes.filter((cl) => canAccess(access, cl.categoryId));
   const [catId, setCatId] = useState("all");
   const [openId, setOpenId] = useState(null);
   const filtered = catId === "all" ? data.materials : data.materials.filter((m) => m.categoryId === catId);
@@ -326,9 +338,9 @@ function MaterialsView({ C, data }) {
           ))}
         </div>
         <div>
-          {filtered.length === 0 && <Empty C={C} text="Belum ada materi di kategori ini." />}
+          {visible.length === 0 && <Empty C={C} text="Belum ada materi di kategori ini." />}
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {filtered.map((m) => (
+            {visible.map((m) => (
               <div key={m.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", border: `1px solid ${C.line}`, borderRadius: 12, padding: "12px 14px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <ItemIcon value={m.icon} fallback="📄" />
@@ -347,7 +359,15 @@ function MaterialsView({ C, data }) {
       {openItem && (
         <div onClick={() => setOpenId(null)} style={{ position: "fixed", inset: 0, background: "rgba(8,30,56,.85)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
           <div onClick={(e) => e.stopPropagation()} style={{ position: "relative", width: "min(900px,95vw)", height: "85vh", background: "#fff", borderRadius: 16, overflow: "hidden" }}>
-            <iframe src={openItem.fileUrl} title={openItem.title} style={{ width: "100%", height: "100%", border: "none" }} />
+            {openItem.fileUrl && openItem.fileUrl.includes("/preview") ? (
+                <iframe src={openItem.fileUrl} title={openItem.title} style={{ width: "100%", height: "100%", border: "none" }} />
+              ) : (
+                <div style={{ padding: 40, textAlign: "center", color: C.bad, fontSize: 14, lineHeight: 1.6 }}>
+                  ⚠️ Link materi ini belum berformat link <b>preview</b> Google Drive yang benar.<br />
+                  Formatnya harus: <code>https://drive.google.com/file/d/FILE_ID/preview</code><br />
+                  Cek juga di admin → tab Materi, dan pastikan sharing Drive-nya diset ke "Anyone with the link — Viewer".
+                </div>
+              )}
             <Watermark text={wmText} />
             <button onClick={() => setOpenId(null)} style={{ position: "absolute", top: 10, right: 10, background: "#fff", border: "none", borderRadius: 999, width: 32, height: 32, cursor: "pointer", zIndex: 10, fontSize: 14 }}>✕</button>
           </div>
@@ -358,16 +378,17 @@ function MaterialsView({ C, data }) {
 }
 
 /* ---------- Videos ---------- */
-function VideosView({ C, data }) {
+function VideosView({ C, data, access }) {
+  const visible = data.classes.filter((cl) => canAccess(access, cl.categoryId));
   const [openId, setOpenId] = useState(null);
   const wmText = `${typeof window !== "undefined" ? localStorage.getItem("neurix_name") : ""} · ${typeof window !== "undefined" ? localStorage.getItem("neurix_voucher") : ""}`;
   const openItem = data.videos.find((x) => x.id === openId);
   return (
     <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 18, padding: 20 }}>
       <h2 style={{ ...serif, color: C.navy, fontSize: 22, margin: "0 0 16px" }}>Video / Recordings</h2>
-      {data.videos.length === 0 && <Empty C={C} text="Belum ada video." />}
+      {visible.length === 0 && <Empty C={C} text="Belum ada video." />}
       <div className="nx-stagger" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        {data.videos.map((v) => {
+        {visible.map((v) => {
           const cat = data.categories.find((c) => c.id === v.categoryId);
           return (
             <div key={v.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", border: `1px solid ${C.line}`, borderRadius: 12, padding: 12 }}>
@@ -390,7 +411,15 @@ function VideosView({ C, data }) {
       {openItem && (
         <div onClick={() => setOpenId(null)} style={{ position: "fixed", inset: 0, background: "rgba(8,30,56,.9)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
           <div onClick={(e) => e.stopPropagation()} style={{ position: "relative", width: "min(920px,95vw)", aspectRatio: "16/9", background: "#000", borderRadius: 16, overflow: "hidden" }}>
-            <iframe src={openItem.url} title={openItem.title} allow="autoplay" style={{ width: "100%", height: "100%", border: "none" }} />
+            {openItem.url && openItem.url.includes("/embed/") ? (
+                <iframe src={openItem.url} title={openItem.title} allow="autoplay" style={{ width: "100%", height: "100%", border: "none" }} />
+              ) : (
+                <div style={{ padding: 40, textAlign: "center", color: "#fff", fontSize: 14, lineHeight: 1.6 }}>
+                  ⚠️ Link video ini belum berformat link <b>embed</b> YouTube yang benar.<br />
+                  Formatnya harus: <code>https://www.youtube.com/embed/VIDEO_ID</code><br />
+                  Cek juga di admin → tab Video, dan pastikan video di-upload sebagai <b>Unlisted</b> (bukan Private).
+                </div>
+              )}
             <Watermark text={wmText} />
             <button onClick={() => setOpenId(null)} style={{ position: "absolute", top: 10, right: 10, background: "#fff", border: "none", borderRadius: 999, width: 32, height: 32, cursor: "pointer", zIndex: 10, fontSize: 14 }}>✕</button>
           </div>
@@ -401,7 +430,8 @@ function VideosView({ C, data }) {
 }
 
 /* ---------- Quiz & Try Out ---------- */
-function QuizListView({ C, data, progress, go }) {
+function QuizListView({ C, data, progress, access, go }) {
+  const visible = data.classes.filter((cl) => canAccess(access, cl.categoryId));
   const [catId, setCatId] = useState("all");
   const filtered = catId === "all" ? data.quizzes : data.quizzes.filter((q) => q.categoryId === catId);
   return (
@@ -413,9 +443,9 @@ function QuizListView({ C, data, progress, go }) {
           <button key={c.id} onClick={() => setCatId(c.id)} style={{ padding: "6px 14px", borderRadius: 999, border: `1px solid ${catId === c.id ? C.navy : C.line}`, background: catId === c.id ? C.navy : "transparent", color: catId === c.id ? "#fff" : C.ink, fontSize: 13, cursor: "pointer" }}>{c.name}</button>
         ))}
       </div>
-      {filtered.length === 0 && <Empty C={C} text="Belum ada kuis di kategori ini." />}
+      {visible.length === 0 && <Empty C={C} text="Belum ada kuis di kategori ini." />}
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        {filtered.map((q) => {
+        {visible.map((q) => {
           const st = progress.topics[q.id];
           return (
             <button key={q.id} onClick={() => go({ name: "quizPlay", id: q.id })}
@@ -616,9 +646,9 @@ function AssignmentsView({ C, data }) {
   return (
     <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 18, padding: 20 }}>
       <h2 style={{ ...serif, color: C.navy, fontSize: 22, margin: "0 0 16px" }}>Assignments</h2>
-      {data.assignments.length === 0 && <Empty C={C} text="Belum ada tugas." />}
+      {visible.length === 0 && <Empty C={C} text="Belum ada tugas." />}
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        {data.assignments.map((a) => {
+        {visible.map((a) => {
           const cat = data.categories.find((c) => c.id === a.categoryId);
           return (
             <div key={a.id} style={{ border: `1px solid ${C.line}`, borderRadius: 12, padding: "14px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>

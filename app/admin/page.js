@@ -6,7 +6,7 @@ import { onAuthStateChanged, signOut } from "firebase/auth";
 import { collection, getDocs, setDoc, deleteDoc, doc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 
-const C = { paper: "#F6F1E7", ink: "#1C2430", inkSoft: "#5B6B7A", navy: "#0B2A4A", gold: "#D9952F", line: "#E7E2D6", card: "#FFFFFF", good: "#2C7A55", bad: "#B23A2E" };
+const C = { paper: "#F7F8FA", ink: "#1C2430", inkSoft: "#5B6B7A", navy: "#0B2A4A", gold: "#D9952F", line: "#E7E2D6", card: "#FFFFFF", good: "#2C7A55", bad: "#B23A2E" };
 const serif = { fontFamily: "'Fraunces', Georgia, serif" };
 const sans = { fontFamily: "'Hanken Grotesk', system-ui, sans-serif" };
 const slug = (s) => s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
@@ -322,14 +322,22 @@ function Pengumuman({ data, reload }) {
 
 function Voucher({ data, reload }) {
   const [code, setCode] = useState(""); const [studentName, setStudentName] = useState(""); const [tier, setTier] = useState("Gold Member");
+  const [allAccess, setAllAccess] = useState(false);
+  const [picked, setPicked] = useState([]);
+  const toggleCat = (id) => setPicked((p) => p.includes(id) ? p.filter((x) => x !== id) : [...p, id]);
+
   const add = async () => {
     const c = code.trim().toUpperCase();
     if (!c) return alert("Isi kode voucher.");
-    await setDoc(doc(db, "vouchers", c), { active: true, categories: "all", studentName: studentName.trim(), tier });
-    setCode(""); setStudentName(""); reload();
+    if (!allAccess && picked.length === 0) return alert("Pilih minimal 1 paket/blok, atau centang 'Semua paket'.");
+    await setDoc(doc(db, "vouchers", c), { active: true, categories: allAccess ? "all" : picked, studentName: studentName.trim(), tier });
+    setCode(""); setStudentName(""); setAllAccess(false); setPicked([]); reload();
   };
   const toggleActive = async (v) => { await setDoc(doc(db, "vouchers", v.id), { ...v, active: !v.active }); reload(); };
   const del = async (id) => { if (!confirm("Hapus voucher?")) return; await deleteDoc(doc(db, "vouchers", id)); reload(); };
+  const catName = (id) => data.categories.find((c) => c.id === id)?.name || id;
+  const describe = (v) => (v.categories === undefined || v.categories === "all") ? "Semua paket" : Array.isArray(v.categories) ? (v.categories.map(catName).join(", ") || "(kosong)") : String(v.categories);
+
   return (
     <Box title="Voucher / Kode Member">
       <Inp placeholder="NRX-2026-001" value={code} onChange={(e) => setCode(e.target.value)} />
@@ -337,12 +345,35 @@ function Voucher({ data, reload }) {
       <Sel value={tier} onChange={(e) => setTier(e.target.value)}>
         <option>Gold Member</option><option>Silver Member</option><option>Platinum Member</option>
       </Sel>
+      <label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, fontSize: 14, fontWeight: 600, color: C.navy }}>
+        <input type="checkbox" checked={allAccess} onChange={(e) => setAllAccess(e.target.checked)} /> Akses SEMUA paket/blok
+      </label>
+      {!allAccess && (
+        <div style={{ marginBottom: 12 }}>
+          <p style={{ fontSize: 13, color: C.inkSoft, margin: "0 0 8px" }}>Pilih paket/blok yang dibuka voucher ini:</p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            {data.categories.map((c) => {
+              const on = picked.includes(c.id);
+              return (
+                <button key={c.id} onClick={() => toggleCat(c.id)} style={{ border: `1.5px solid ${on ? C.navy : C.line}`, background: on ? C.navy : C.card, color: on ? "#fff" : C.ink, borderRadius: 999, padding: "7px 14px", cursor: "pointer", fontSize: 13.5, fontWeight: 500 }}>
+                  {on ? "✓ " : ""}{c.emoji} {c.name}
+                </button>
+              );
+            })}
+            {data.categories.length === 0 && <span style={{ fontSize: 13, color: C.inkSoft }}>Belum ada paket/kategori. Buat dulu di tab Kategori.</span>}
+          </div>
+        </div>
+      )}
       <Btn onClick={add}>+ Tambah Voucher</Btn>
       <div style={{ marginTop: 14 }}>
         {data.vouchers.map((v) => (
           <Row key={v.id}>
-            <span style={{ fontFamily: "monospace" }}><b>{v.id}</b> <span style={{ color: v.active ? C.good : C.bad, fontWeight: 700, marginLeft: 8, fontFamily: sans.fontFamily }}>{v.active ? "AKTIF" : "NONAKTIF"}</span></span>
-            <span style={{ display: "flex", gap: 10 }}>
+            <span>
+              <span style={{ fontFamily: "monospace", fontWeight: 700 }}>{v.id}</span>
+              <span style={{ color: v.active ? C.good : C.bad, fontWeight: 700, marginLeft: 8 }}>{v.active ? "AKTIF" : "NONAKTIF"}</span>
+              <span style={{ display: "block", color: C.inkSoft, fontSize: 12.5, marginTop: 2 }}>🔑 {describe(v)}</span>
+            </span>
+            <span style={{ display: "flex", gap: 10, flexShrink: 0 }}>
               <button onClick={() => toggleActive(v)} style={{ background: "none", border: "none", color: C.navy, cursor: "pointer" }}>{v.active ? "Nonaktifkan" : "Aktifkan"}</button>
               <button onClick={() => del(v.id)} style={{ background: "none", border: "none", color: C.bad, cursor: "pointer" }}>Hapus</button>
             </span>
