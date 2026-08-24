@@ -319,12 +319,17 @@ function ClassesView({ C, data, access }) {
 
 /* ---------- Materials ---------- */
 function MaterialsView({ C, data, access }) {
-  const visible = data.classes.filter((cl) => canAccess(access, cl.categoryId));
   const [catId, setCatId] = useState("all");
   const [openId, setOpenId] = useState(null);
-  const filtered = catId === "all" ? data.materials : data.materials.filter((m) => m.categoryId === catId);
+  
+  // ✅ GANTI INI - visible seharusnya materials, bukan classes
+  const visible = data.materials.filter((m) => 
+    catId === "all" ? canAccess(access, m.categoryId) : m.categoryId === catId && canAccess(access, m.categoryId)
+  );
+  
   const wmText = `${typeof window !== "undefined" ? localStorage.getItem("neurix_name") : ""} · ${typeof window !== "undefined" ? localStorage.getItem("neurix_voucher") : ""}`;
-  const openItem = filtered.find((x) => x.id === openId);
+  const openItem = visible.find((x) => x.id === openId);
+  
   return (
     <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 18, padding: 20 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, flexWrap: "wrap", gap: 10 }}>
@@ -355,7 +360,7 @@ function MaterialsView({ C, data, access }) {
           </div>
         </div>
       </div>
-
+      {/* Modal tetap sama */}
       {openItem && (
         <div onClick={() => setOpenId(null)} style={{ position: "fixed", inset: 0, background: "rgba(8,30,56,.85)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
           <div onClick={(e) => e.stopPropagation()} style={{ position: "relative", width: "min(900px,95vw)", height: "85vh", background: "#fff", borderRadius: 16, overflow: "hidden" }}>
@@ -363,9 +368,15 @@ function MaterialsView({ C, data, access }) {
                 <iframe src={openItem.fileUrl} title={openItem.title} style={{ width: "100%", height: "100%", border: "none" }} />
               ) : (
                 <div style={{ padding: 40, textAlign: "center", color: C.bad, fontSize: 14, lineHeight: 1.6 }}>
-                  ⚠️ Link materi ini belum berformat link <b>preview</b> Google Drive yang benar.<br />
-                  Formatnya harus: <code>https://drive.google.com/file/d/FILE_ID/preview</code><br />
-                  Cek juga di admin → tab Materi, dan pastikan sharing Drive-nya diset ke "Anyone with the link — Viewer".
+                  ⚠️ Link materi belum benar!<br/>
+                  Format yang benar:<br/>
+                  <code>https://drive.google.com/file/d/FILE_ID/preview</code><br/><br/>
+                  ✅ Cek:
+                  <ul style={{textAlign: "left", display: "inline-block"}}>
+                    <li>File sudah di-share dengan "Anyone with link"</li>
+                    <li>Gunakan link PREVIEW, bukan sharing link</li>
+                    <li>Edit di Admin → tab Materi</li>
+                  </ul>
                 </div>
               )}
             <Watermark text={wmText} />
@@ -379,10 +390,14 @@ function MaterialsView({ C, data, access }) {
 
 /* ---------- Videos ---------- */
 function VideosView({ C, data, access }) {
-  const visible = data.classes.filter((cl) => canAccess(access, cl.categoryId));
   const [openId, setOpenId] = useState(null);
+  
+  // ✅ GANTI INI - filter video berdasarkan access
+  const visible = data.videos.filter((v) => canAccess(access, v.categoryId));
+  
   const wmText = `${typeof window !== "undefined" ? localStorage.getItem("neurix_name") : ""} · ${typeof window !== "undefined" ? localStorage.getItem("neurix_voucher") : ""}`;
   const openItem = data.videos.find((x) => x.id === openId);
+  
   return (
     <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 18, padding: 20 }}>
       <h2 style={{ ...serif, color: C.navy, fontSize: 22, margin: "0 0 16px" }}>Video / Recordings</h2>
@@ -415,9 +430,16 @@ function VideosView({ C, data, access }) {
                 <iframe src={openItem.url} title={openItem.title} allow="autoplay" style={{ width: "100%", height: "100%", border: "none" }} />
               ) : (
                 <div style={{ padding: 40, textAlign: "center", color: "#fff", fontSize: 14, lineHeight: 1.6 }}>
-                  ⚠️ Link video ini belum berformat link <b>embed</b> YouTube yang benar.<br />
-                  Formatnya harus: <code>https://www.youtube.com/embed/VIDEO_ID</code><br />
-                  Cek juga di admin → tab Video, dan pastikan video di-upload sebagai <b>Unlisted</b> (bukan Private).
+                  ⚠️ Link video belum benar!<br/>
+                  Format yang benar:<br/>
+                  <code>https://www.youtube.com/embed/VIDEO_ID</code><br/><br/>
+                  ✅ Cek:
+                  <ul style={{textAlign: "left", display: "inline-block"}}>
+                    <li>Video YouTube sudah di-upload</li>
+                    <li>Gunakan link EMBED (bukan sharing link)</li>
+                    <li>Video harus "Unlisted" minimal, bukan Private</li>
+                    <li>Edit di Admin → tab Video</li>
+                  </ul>
                 </div>
               )}
             <Watermark text={wmText} />
@@ -431,15 +453,18 @@ function VideosView({ C, data, access }) {
 
 /* ---------- Quiz & Try Out ---------- */
 function QuizListView({ C, data, progress, access, go }) {
-  const visible = data.classes.filter((cl) => canAccess(access, cl.categoryId));
   const [catId, setCatId] = useState("all");
-  const filtered = catId === "all" ? data.quizzes : data.quizzes.filter((q) => q.categoryId === catId);
+  
+  // ✅ GANTI INI - filter quiz berdasarkan access
+  const filtered = data.quizzes.filter((q) => canAccess(access, q.categoryId));
+  const visible = catId === "all" ? filtered : filtered.filter((q) => q.categoryId === catId);
+  
   return (
     <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 18, padding: 20 }}>
       <h2 style={{ ...serif, color: C.navy, fontSize: 22, margin: "0 0 16px" }}>Quiz &amp; Try Out</h2>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>
         <button onClick={() => setCatId("all")} style={{ padding: "6px 14px", borderRadius: 999, border: `1px solid ${catId === "all" ? C.navy : C.line}`, background: catId === "all" ? C.navy : "transparent", color: catId === "all" ? "#fff" : C.ink, fontSize: 13, cursor: "pointer" }}>Semua</button>
-        {data.categories.map((c) => (
+        {data.categories.filter((cat) => canAccess(access, cat.id)).map((c) => (
           <button key={c.id} onClick={() => setCatId(c.id)} style={{ padding: "6px 14px", borderRadius: 999, border: `1px solid ${catId === c.id ? C.navy : C.line}`, background: catId === c.id ? C.navy : "transparent", color: catId === c.id ? "#fff" : C.ink, fontSize: 13, cursor: "pointer" }}>{c.name}</button>
         ))}
       </div>
@@ -636,13 +661,20 @@ function ProgressView({ C, data, progress, setProgress, go }) {
 }
 const AKEY = "neurix_assignments_v1";
 function loadDone() { try { return JSON.parse(localStorage.getItem(AKEY) || "{}"); } catch { return {}; } }
-function AssignmentsView({ C, data }) {
+function AssignmentsView({ C, data, access }) {
   const [done, setDone] = useState({});
+  
+  // ✅ TAMBAHKAN FILTER INI
+  const visible = data.assignments.filter((a) => canAccess(access, a.categoryId));
+  
   useEffect(() => { setDone(loadDone()); }, []);
+  
   const toggle = (id) => {
     const next = { ...done, [id]: !done[id] };
-    setDone(next); localStorage.setItem(AKEY, JSON.stringify(next));
+    setDone(next);
+    localStorage.setItem(AKEY, JSON.stringify(next));
   };
+  
   return (
     <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 18, padding: 20 }}>
       <h2 style={{ ...serif, color: C.navy, fontSize: 22, margin: "0 0 16px" }}>Assignments</h2>
@@ -678,7 +710,7 @@ function ConsultationView({ C, data, name }) {
     if (!categoryId || !topic.trim()) return alert("Pilih kategori & isi topik konsultasi.");
     const cat = data.categories.find((c) => c.id === categoryId);
     const msg = encodeURIComponent(`Halo Neurix Medical, saya ${name} ingin konsultasi topik "${topic}" (${cat?.name || ""}).`);
-    window.open(`https://wa.me/62812xxxxxxx?text=${msg}`, "_blank");
+    window.open(`https://wa.me/6285821276673?text=${msg}`, "_blank");
     setSent(true);
   };
   return (

@@ -6,6 +6,48 @@ import { onAuthStateChanged, signOut } from "firebase/auth";
 import { collection, getDocs, setDoc, deleteDoc, doc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 
+// Tambah function helper ini di atas, sebelum component definitions
+function EditModal({ isOpen, item, onClose, onSave, fields, C }) {
+  const [formData, setFormData] = useState(item || {});
+  
+  if (!isOpen) return null;
+  
+  const handleChange = (key, value) => {
+    setFormData(prev => ({ ...prev, [key]: value }));
+  };
+  
+  return (
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(11,42,74,.7)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+      <div onClick={e => e.stopPropagation()} style={{ background: C.card, borderRadius: 18, padding: 28, maxWidth: 500, width: "100%" }}>
+        <h2 style={{ ...serif, color: C.navy, margin: "0 0 16px", fontSize: 20 }}>Edit {item?.name || item?.title}</h2>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 20 }}>
+          {fields.map(field => (
+            <div key={field.key}>
+              <label style={{ fontSize: 12, fontWeight: 600, color: C.navy, display: "block", marginBottom: 4 }}>{field.label}</label>
+              {field.type === "textarea" ? (
+                <textarea value={formData[field.key] || ""} onChange={e => handleChange(field.key, e.target.value)} 
+                  style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: `1px solid ${C.line}`, fontSize: 14.5, fontFamily: "inherit", minHeight: 80, boxSizing: "border-box" }} />
+              ) : field.type === "select" ? (
+                <select value={formData[field.key] || ""} onChange={e => handleChange(field.key, e.target.value)}
+                  style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: `1px solid ${C.line}`, fontSize: 14.5, boxSizing: "border-box" }}>
+                  {field.options?.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                </select>
+              ) : (
+                <input type={field.type || "text"} value={formData[field.key] || ""} onChange={e => handleChange(field.key, e.target.value)}
+                  style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: `1px solid ${C.line}`, fontSize: 14.5, boxSizing: "border-box" }} />
+              )}
+            </div>
+          ))}
+        </div>
+        <div style={{ display: "flex", gap: 10 }}>
+          <button onClick={() => onSave(formData)} style={{ flex: 1, background: C.navy, color: "#fff", border: "none", borderRadius: 10, padding: 12, fontWeight: 700, cursor: "pointer" }}>Simpan</button>
+          <button onClick={onClose} style={{ flex: 1, background: C.line, border: "none", borderRadius: 10, padding: 12, fontWeight: 700, cursor: "pointer" }}>Batal</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const C = { paper: "#F7F8FA", ink: "#1C2430", inkSoft: "#5B6B7A", navy: "#0B2A4A", gold: "#D9952F", line: "#E7E2D6", card: "#FFFFFF", good: "#2C7A55", bad: "#B23A2E" };
 const serif = { fontFamily: "'Fraunces', Georgia, serif" };
 const sans = { fontFamily: "'Hanken Grotesk', system-ui, sans-serif" };
@@ -86,114 +128,281 @@ export default function AdminPage() {
 }
 
 function Kategori({ data, reload }) {
-  const [name, setName] = useState(""); const [emoji, setEmoji] = useState("");
-  const save = async () => { if (!name.trim()) return alert("Isi nama kategori."); await setDoc(doc(db, "categories", slug(name)), { name: name.trim(), emoji: emoji.trim() }); setName(""); setEmoji(""); reload(); };
-  const del = async (id) => { if (!confirm("Hapus kategori ini?")) return; await deleteDoc(doc(db, "categories", id)); reload(); };
+  const [name, setName] = useState("");
+  const [emoji, setEmoji] = useState("");
+  const [editOpen, setEditOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState(null);
+  
+  const save = async () => {
+    if (!name.trim()) return alert("Isi nama kategori.");
+    await setDoc(doc(db, "categories", slug(name)), { name: name.trim(), emoji: emoji.trim() });
+    setName(""); setEmoji(""); reload();
+  };
+  
+  const startEdit = (item) => {
+    setEditingItem(item);
+    setEditOpen(true);
+  };
+  
+  const saveEdit = async (formData) => {
+    if (!formData.name.trim()) return alert("Isi nama kategori.");
+    await setDoc(doc(db, "categories", editingItem.id), { name: formData.name.trim(), emoji: formData.emoji.trim() });
+    setEditOpen(false);
+    reload();
+  };
+  
+  const del = async (id) => {
+    if (!confirm("Hapus kategori ini?")) return;
+    await deleteDoc(doc(db, "categories", id));
+    reload();
+  };
+  
   return (
-    <Box title="Kategori (mis. Kardiovaskular, Respirasi, Neurologi)">
-      <Inp placeholder="Nama kategori" value={name} onChange={(e) => setName(e.target.value)} />
-      <Inp placeholder="Emoji (mis. ❤️)" value={emoji} onChange={(e) => setEmoji(e.target.value)} />
-      <Btn onClick={save}>+ Tambah Kategori</Btn>
-      <div style={{ marginTop: 14 }}>
-        {data.categories.map((c) => (
-          <Row key={c.id}><span>{c.emoji} <b>{c.name}</b></span><button onClick={() => del(c.id)} style={{ background: "none", border: "none", color: C.bad, cursor: "pointer" }}>Hapus</button></Row>
-        ))}
-      </div>
-    </Box>
+    <>
+      <Box title="Kategori (mis. Kardiovaskular, Respirasi, Neurologi)">
+        <Inp placeholder="Nama kategori" value={name} onChange={(e) => setName(e.target.value)} />
+        <Inp placeholder="Emoji (mis. ❤️)" value={emoji} onChange={(e) => setEmoji(e.target.value)} />
+        <Btn onClick={save}>+ Tambah Kategori</Btn>
+        <div style={{ marginTop: 14 }}>
+          {data.categories.map((c) => (
+            <Row key={c.id}>
+              <span>{c.emoji} <b>{c.name}</b></span>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button onClick={() => startEdit(c)} style={{ background: "none", border: "none", color: C.navy, cursor: "pointer", fontWeight: 700 }}>Edit</button>
+                <button onClick={() => del(c.id)} style={{ background: "none", border: "none", color: C.bad, cursor: "pointer" }}>Hapus</button>
+              </div>
+            </Row>
+          ))}
+        </div>
+      </Box>
+      
+      <EditModal isOpen={editOpen} item={editingItem} onClose={() => setEditOpen(false)} onSave={saveEdit} C={C}
+        fields={[
+          { key: "name", label: "Nama Kategori", type: "text" },
+          { key: "emoji", label: "Emoji", type: "text" }
+        ]} />
+    </>
   );
 }
 
 function Kelas({ data, reload }) {
-  const [title, setTitle] = useState(""); const [categoryId, setCategoryId] = useState("");
-  const [dateV, setDateV] = useState(""); const [timeV, setTimeV] = useState(""); const [capacity, setCapacity] = useState(10); const [confirmed, setConfirmed] = useState(0);
+  const [title, setTitle] = useState("");
+  const [categoryId, setCategoryId] = useState("");
+  const [dateV, setDateV] = useState("");
+  const [timeV, setTimeV] = useState("");
+  const [capacity, setCapacity] = useState(10);
+  const [confirmed, setConfirmed] = useState(0);
+  const [editOpen, setEditOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState(null);
+  
   const save = async () => {
     if (!title.trim() || !categoryId) return alert("Lengkapi judul & kategori.");
     const id = slug(title) + "-" + Date.now();
     await setDoc(doc(db, "classes", id), { title: title.trim(), categoryId, date: dateV, time: timeV, capacity: Number(capacity), confirmed: Number(confirmed), status: "upcoming" });
     setTitle(""); setDateV(""); setTimeV(""); reload();
   };
-  const del = async (id) => { if (!confirm("Hapus kelas ini?")) return; await deleteDoc(doc(db, "classes", id)); reload(); };
+  
+  const startEdit = (item) => {
+    setEditingItem(item);
+    setEditOpen(true);
+  };
+  
+  const saveEdit = async (formData) => {
+    if (!formData.title.trim() || !formData.categoryId) return alert("Lengkapi judul & kategori.");
+    await setDoc(doc(db, "classes", editingItem.id), formData);
+    setEditOpen(false);
+    reload();
+  };
+  
+  const del = async (id) => {
+    if (!confirm("Hapus kelas ini?")) return;
+    await deleteDoc(doc(db, "classes", id));
+    reload();
+  };
+  
   return (
-    <Box title="Jadwal Kelas">
-      <Sel value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
-        <option value="">— pilih kategori —</option>
-        {data.categories.map((c) => <option key={c.id} value={c.id}>{c.emoji} {c.name}</option>)}
-      </Sel>
-      <Inp placeholder="Judul kelas (mis. Clinical Reasoning)" value={title} onChange={(e) => setTitle(e.target.value)} />
-      <Inp placeholder="Tanggal (mis. Sabtu, 25 Mei 2026)" value={dateV} onChange={(e) => setDateV(e.target.value)} />
-      <Inp placeholder="Waktu (mis. 19.00 - 21.00 WIB)" value={timeV} onChange={(e) => setTimeV(e.target.value)} />
-      <div style={{ display: "flex", gap: 10 }}>
-        <Inp placeholder="Kapasitas" type="number" value={capacity} onChange={(e) => setCapacity(e.target.value)} />
-        <Inp placeholder="Terkonfirmasi" type="number" value={confirmed} onChange={(e) => setConfirmed(e.target.value)} />
-      </div>
-      <Btn onClick={save}>+ Tambah Kelas</Btn>
-      <div style={{ marginTop: 14 }}>
-        {data.classes.map((c) => (
-          <Row key={c.id}><span><b>{c.title}</b> <span style={{ color: C.inkSoft }}>· {c.date} · {c.time}</span></span><button onClick={() => del(c.id)} style={{ background: "none", border: "none", color: C.bad, cursor: "pointer" }}>Hapus</button></Row>
-        ))}
-      </div>
-    </Box>
+    <>
+      <Box title="Jadwal Kelas">
+        <Sel value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
+          <option value="">— pilih kategori —</option>
+          {data.categories.map((c) => <option key={c.id} value={c.id}>{c.emoji} {c.name}</option>)}
+        </Sel>
+        <Inp placeholder="Judul kelas" value={title} onChange={(e) => setTitle(e.target.value)} />
+        <Inp placeholder="Tanggal (mis. Sabtu, 25 Mei 2026)" value={dateV} onChange={(e) => setDateV(e.target.value)} />
+        <Inp placeholder="Waktu (mis. 19.00 - 21.00 WIB)" value={timeV} onChange={(e) => setTimeV(e.target.value)} />
+        <div style={{ display: "flex", gap: 10 }}>
+          <Inp placeholder="Kapasitas" type="number" value={capacity} onChange={(e) => setCapacity(e.target.value)} />
+          <Inp placeholder="Terkonfirmasi" type="number" value={confirmed} onChange={(e) => setConfirmed(e.target.value)} />
+        </div>
+        <Btn onClick={save}>+ Tambah Kelas</Btn>
+        <div style={{ marginTop: 14 }}>
+          {data.classes.map((c) => (
+            <Row key={c.id}>
+              <span><b>{c.title}</b> <span style={{ color: C.inkSoft }}>· {c.date} · {c.time}</span></span>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button onClick={() => startEdit(c)} style={{ background: "none", border: "none", color: C.navy, cursor: "pointer", fontWeight: 700 }}>Edit</button>
+                <button onClick={() => del(c.id)} style={{ background: "none", border: "none", color: C.bad, cursor: "pointer" }}>Hapus</button>
+              </div>
+            </Row>
+          ))}
+        </div>
+      </Box>
+      
+      <EditModal isOpen={editOpen} item={editingItem} onClose={() => setEditOpen(false)} onSave={saveEdit} C={C}
+        fields={[
+          { key: "categoryId", label: "Kategori", type: "select", options: data.categories.map(c => c.id) },
+          { key: "title", label: "Judul", type: "text" },
+          { key: "date", label: "Tanggal", type: "text" },
+          { key: "time", label: "Waktu", type: "text" },
+          { key: "capacity", label: "Kapasitas", type: "number" },
+          { key: "confirmed", label: "Terkonfirmasi", type: "number" }
+        ]} />
+    </>
   );
 }
 
 function Materi({ data, reload }) {
-  const [title, setTitle] = useState(""); const [categoryId, setCategoryId] = useState(""); const [fileUrl, setFileUrl] = useState(""); const [size, setSize] = useState("");
+  const [title, setTitle] = useState("");
+  const [categoryId, setCategoryId] = useState("");
+  const [fileUrl, setFileUrl] = useState("");
+  const [size, setSize] = useState("");
+  const [editOpen, setEditOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState(null);
+  
   const save = async () => {
     if (!title.trim() || !categoryId) return alert("Lengkapi judul & kategori.");
     const id = slug(title) + "-" + Date.now();
     await setDoc(doc(db, "materials", id), { title: title.trim(), categoryId, fileUrl: fileUrl.trim(), size: size.trim() });
     setTitle(""); setFileUrl(""); setSize(""); reload();
   };
-  const del = async (id) => { if (!confirm("Hapus materi ini?")) return; await deleteDoc(doc(db, "materials", id)); reload(); };
+  
+  const startEdit = (item) => {
+    setEditingItem(item);
+    setEditOpen(true);
+  };
+  
+  const saveEdit = async (formData) => {
+    if (!formData.title.trim() || !formData.categoryId) return alert("Lengkapi judul & kategori.");
+    await setDoc(doc(db, "materials", editingItem.id), formData);
+    setEditOpen(false);
+    reload();
+  };
+  
+  const del = async (id) => {
+    if (!confirm("Hapus materi ini?")) return;
+    await deleteDoc(doc(db, "materials", id));
+    reload();
+  };
+  
   return (
-    <Box title="Materi">
-      <Sel value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
-        <option value="">— pilih kategori —</option>
-        {data.categories.map((c) => <option key={c.id} value={c.id}>{c.emoji} {c.name}</option>)}
-      </Sel>
-      <Inp placeholder="Judul materi" value={title} onChange={(e) => setTitle(e.target.value)} />
-      <Inp placeholder="Link PREVIEW Google Drive: https://drive.google.com/file/d/FILE_ID/preview" value={fileUrl} onChange={(e) => setFileUrl(e.target.value)} />
-      <Inp placeholder="Ukuran (mis. PDF · 25 MB)" value={size} onChange={(e) => setSize(e.target.value)} />
-      <Btn onClick={save}>+ Tambah Materi</Btn>
-      <p style={{ fontSize: 12.5, color: C.inkSoft, marginTop: 4 }}>Catatan: proyek ini tidak memakai Firebase Storage. Simpan file di Google Drive/host lain lalu tempel link-nya di sini.</p>
-      <div style={{ marginTop: 14 }}>
-        {data.materials.map((m) => (
-          <Row key={m.id}><span><b>{m.title}</b> <span style={{ color: C.inkSoft }}>· {m.size}</span></span><button onClick={() => del(m.id)} style={{ background: "none", border: "none", color: C.bad, cursor: "pointer" }}>Hapus</button></Row>
-        ))}
-      </div>
-    </Box>
+    <>
+      <Box title="Materi">
+        <Sel value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
+          <option value="">— pilih kategori —</option>
+          {data.categories.map((c) => <option key={c.id} value={c.id}>{c.emoji} {c.name}</option>)}
+        </Sel>
+        <Inp placeholder="Judul materi" value={title} onChange={(e) => setTitle(e.target.value)} />
+        <Inp placeholder="Link PREVIEW Google Drive: https://drive.google.com/file/d/FILE_ID/preview" value={fileUrl} onChange={(e) => setFileUrl(e.target.value)} />
+        <Inp placeholder="Ukuran (mis. PDF · 25 MB)" value={size} onChange={(e) => setSize(e.target.value)} />
+        <Btn onClick={save}>+ Tambah Materi</Btn>
+        <p style={{ fontSize: 12.5, color: C.inkSoft, marginTop: 4 }}>Catatan: proyek ini tidak memakai Firebase Storage. Simpan file di Google Drive/host lain lalu tempel link-nya di sini.</p>
+        <div style={{ marginTop: 14 }}>
+          {data.materials.map((m) => (
+            <Row key={m.id}>
+              <span><b>{m.title}</b> <span style={{ color: C.inkSoft }}>· {m.size}</span></span>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button onClick={() => startEdit(m)} style={{ background: "none", border: "none", color: C.navy, cursor: "pointer", fontWeight: 700 }}>Edit</button>
+                <button onClick={() => del(m.id)} style={{ background: "none", border: "none", color: C.bad, cursor: "pointer" }}>Hapus</button>
+              </div>
+            </Row>
+          ))}
+        </div>
+      </Box>
+      
+      <EditModal isOpen={editOpen} item={editingItem} onClose={() => setEditOpen(false)} onSave={saveEdit} C={C}
+        fields={[
+          { key: "categoryId", label: "Kategori", type: "select", options: data.categories.map(c => c.id) },
+          { key: "title", label: "Judul", type: "text" },
+          { key: "fileUrl", label: "Link Google Drive Preview", type: "text" },
+          { key: "size", label: "Ukuran", type: "text" }
+        ]} />
+    </>
   );
 }
 
 function Video({ data, reload }) {
-  const [title, setTitle] = useState(""); const [categoryId, setCategoryId] = useState(""); const [url, setUrl] = useState(""); const [duration, setDuration] = useState(""); const [instructor, setInstructor] = useState(""); const [thumbUrl, setThumbUrl] = useState("");
+  const [title, setTitle] = useState("");
+  const [categoryId, setCategoryId] = useState("");
+  const [url, setUrl] = useState("");
+  const [duration, setDuration] = useState("");
+  const [instructor, setInstructor] = useState("");
+  const [thumbUrl, setThumbUrl] = useState("");
+  const [editOpen, setEditOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState(null);
+  
   const save = async () => {
     if (!title.trim() || !categoryId) return alert("Lengkapi judul & kategori.");
     const id = slug(title) + "-" + Date.now();
     await setDoc(doc(db, "videos", id), { title: title.trim(), categoryId, url: url.trim(), duration: duration.trim(), instructor: instructor.trim(), thumbUrl: thumbUrl.trim() });
-setTitle(""); setUrl(""); setDuration(""); setInstructor(""); setThumbUrl(""); reload();
+    setTitle(""); setUrl(""); setDuration(""); setInstructor(""); setThumbUrl(""); reload();
   };
-  const del = async (id) => { if (!confirm("Hapus video ini?")) return; await deleteDoc(doc(db, "videos", id)); reload(); };
+  
+  const startEdit = (item) => {
+    setEditingItem(item);
+    setEditOpen(true);
+  };
+  
+  const saveEdit = async (formData) => {
+    if (!formData.title.trim() || !formData.categoryId) return alert("Lengkapi judul & kategori.");
+    await setDoc(doc(db, "videos", editingItem.id), formData);
+    setEditOpen(false);
+    reload();
+  };
+  
+  const del = async (id) => {
+    if (!confirm("Hapus video ini?")) return;
+    await deleteDoc(doc(db, "videos", id));
+    reload();
+  };
+  
   return (
-    <Box title="Video / Recordings">
-      <Sel value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
-        <option value="">— pilih kategori —</option>
-        {data.categories.map((c) => <option key={c.id} value={c.id}>{c.emoji} {c.name}</option>)}
-      </Sel>
-      <Inp placeholder="Judul video" value={title} onChange={(e) => setTitle(e.target.value)} />
-      <Inp placeholder="Link EMBED YouTube: https://www.youtube.com/embed/VIDEO_ID" value={url} onChange={(e) => setUrl(e.target.value)} />
-      <Inp placeholder="URL thumbnail (opsional)" value={thumbUrl} onChange={(e) => setThumbUrl(e.target.value)} />
-      <div style={{ display: "flex", gap: 10 }}>
-        <Inp placeholder="Durasi (mis. 90 menit)" value={duration} onChange={(e) => setDuration(e.target.value)} />
-        <Inp placeholder="Pengajar" value={instructor} onChange={(e) => setInstructor(e.target.value)} />
-      </div>
-      <Btn onClick={save}>+ Tambah Video</Btn>
-      <div style={{ marginTop: 14 }}>
-        {data.videos.map((v) => (
-          <Row key={v.id}><span><b>{v.title}</b> <span style={{ color: C.inkSoft }}>· {v.instructor}</span></span><button onClick={() => del(v.id)} style={{ background: "none", border: "none", color: C.bad, cursor: "pointer" }}>Hapus</button></Row>
-        ))}
-      </div>
-    </Box>
+    <>
+      <Box title="Video / Recordings">
+        <Sel value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
+          <option value="">— pilih kategori —</option>
+          {data.categories.map((c) => <option key={c.id} value={c.id}>{c.emoji} {c.name}</option>)}
+        </Sel>
+        <Inp placeholder="Judul video" value={title} onChange={(e) => setTitle(e.target.value)} />
+        <Inp placeholder="Link EMBED YouTube: https://www.youtube.com/embed/VIDEO_ID" value={url} onChange={(e) => setUrl(e.target.value)} />
+        <Inp placeholder="URL thumbnail (opsional)" value={thumbUrl} onChange={(e) => setThumbUrl(e.target.value)} />
+        <div style={{ display: "flex", gap: 10 }}>
+          <Inp placeholder="Durasi (mis. 90 menit)" value={duration} onChange={(e) => setDuration(e.target.value)} />
+          <Inp placeholder="Pengajar" value={instructor} onChange={(e) => setInstructor(e.target.value)} />
+        </div>
+        <Btn onClick={save}>+ Tambah Video</Btn>
+        <div style={{ marginTop: 14 }}>
+          {data.videos.map((v) => (
+            <Row key={v.id}>
+              <span><b>{v.title}</b> <span style={{ color: C.inkSoft }}>· {v.instructor}</span></span>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button onClick={() => startEdit(v)} style={{ background: "none", border: "none", color: C.navy, cursor: "pointer", fontWeight: 700 }}>Edit</button>
+                <button onClick={() => del(v.id)} style={{ background: "none", border: "none", color: C.bad, cursor: "pointer" }}>Hapus</button>
+              </div>
+            </Row>
+          ))}
+        </div>
+      </Box>
+      
+      <EditModal isOpen={editOpen} item={editingItem} onClose={() => setEditOpen(false)} onSave={saveEdit} C={C}
+        fields={[
+          { key: "categoryId", label: "Kategori", type: "select", options: data.categories.map(c => c.id) },
+          { key: "title", label: "Judul", type: "text" },
+          { key: "url", label: "Link YouTube Embed", type: "text" },
+          { key: "thumbUrl", label: "URL Thumbnail", type: "text" },
+          { key: "duration", label: "Durasi", type: "text" },
+          { key: "instructor", label: "Pengajar", type: "text" }
+        ]} />
+    </>
   );
 }
 
@@ -298,25 +507,61 @@ function Tugas({ data, reload }) {
 }
 
 function Pengumuman({ data, reload }) {
-  const [title, setTitle] = useState(""); const [dateV, setDateV] = useState("");
+  const [title, setTitle] = useState("");
+  const [dateV, setDateV] = useState("");
+  const [editOpen, setEditOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState(null);
+  
   const save = async () => {
     if (!title.trim()) return alert("Isi judul pengumuman.");
     const id = "ann-" + Date.now();
     await setDoc(doc(db, "announcements", id), { title: title.trim(), date: dateV.trim() });
     setTitle(""); setDateV(""); reload();
   };
-  const del = async (id) => { if (!confirm("Hapus pengumuman ini?")) return; await deleteDoc(doc(db, "announcements", id)); reload(); };
+  
+  const startEdit = (item) => {
+    setEditingItem(item);
+    setEditOpen(true);
+  };
+  
+  const saveEdit = async (formData) => {
+    if (!formData.title.trim()) return alert("Isi judul pengumuman.");
+    await setDoc(doc(db, "announcements", editingItem.id), formData);
+    setEditOpen(false);
+    reload();
+  };
+  
+  const del = async (id) => {
+    if (!confirm("Hapus pengumuman ini?")) return;
+    await deleteDoc(doc(db, "announcements", id));
+    reload();
+  };
+  
   return (
-    <Box title="Pengumuman">
-      <Inp placeholder="Judul pengumuman" value={title} onChange={(e) => setTitle(e.target.value)} />
-      <Inp placeholder="Tanggal (mis. 25 Mei 2026)" value={dateV} onChange={(e) => setDateV(e.target.value)} />
-      <Btn onClick={save}>+ Tambah Pengumuman</Btn>
-      <div style={{ marginTop: 14 }}>
-        {data.announcements.map((a) => (
-          <Row key={a.id}><span><b>{a.title}</b> <span style={{ color: C.inkSoft }}>· {a.date}</span></span><button onClick={() => del(a.id)} style={{ background: "none", border: "none", color: C.bad, cursor: "pointer" }}>Hapus</button></Row>
-        ))}
-      </div>
-    </Box>
+    <>
+      <Box title="Pengumuman">
+        <Inp placeholder="Judul pengumuman" value={title} onChange={(e) => setTitle(e.target.value)} />
+        <Inp placeholder="Tanggal (mis. 25 Mei 2026)" value={dateV} onChange={(e) => setDateV(e.target.value)} />
+        <Btn onClick={save}>+ Tambah Pengumuman</Btn>
+        <div style={{ marginTop: 14 }}>
+          {data.announcements.map((a) => (
+            <Row key={a.id}>
+              <span><b>{a.title}</b> <span style={{ color: C.inkSoft }}>· {a.date}</span></span>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button onClick={() => startEdit(a)} style={{ background: "none", border: "none", color: C.navy, cursor: "pointer", fontWeight: 700 }}>Edit</button>
+                <button onClick={() => del(a.id)} style={{ background: "none", border: "none", color: C.bad, cursor: "pointer" }}>Hapus</button>
+              </div>
+            </Row>
+          ))}
+        </div>
+      </Box>
+      
+      <EditModal isOpen={editOpen} item={editingItem} onClose={() => setEditOpen(false)} onSave={saveEdit} C={C}
+        fields={[
+          { key: "title", label: "Judul", type: "text" },
+          { key: "date", label: "Tanggal", type: "text" }
+        ]} />
+    </>
   );
 }
 
