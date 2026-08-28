@@ -234,8 +234,6 @@ function Sidebar({ view, go, logout, menuOpen }) {
         flexShrink: 0, 
         minHeight: "100vh", 
         padding: "20px 14px", 
-        position: "sticky", 
-        top: 0,
         background: "linear-gradient(180deg, #0B2A4A 0%, #143A63 55%, #0B2A4A 100%)",
         display: "flex",
         flexDirection: "column"
