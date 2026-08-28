@@ -187,6 +187,9 @@ body {
   }
 }
 
+.nx-scroll-nav::-webkit-scrollbar { display: none; }
+.nx-scroll-nav { scrollbar-width: none; }
+
 /* ========== TRANSISI & ANIMASI ========== */
 @keyframes nx-fade-up {
   from {
