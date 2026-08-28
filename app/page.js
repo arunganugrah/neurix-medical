@@ -162,7 +162,7 @@ export default function LandingPage() {
             </p>
             <div style={{ display: "flex", gap: 12, marginTop: 22, flexWrap: "wrap" }}>
               <a href="#programs" style={{ background: C.navy, color: "#fff", padding: "13px 22px", borderRadius: 12, fontWeight: 700, fontSize: 14.5, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8 }}>EXPLORE CLASSES →</a>
-              <a href="/login" style={{ border: `1.5px solid ${C.gold}`, color: C.navy, padding: "13px 22px", borderRadius: 12, fontWeight: 700, fontSize: 14.5, textDecoration: "none" }}>JOIN NEURIX</a>
+              <a href="#membership" style={{ border: `1.5px solid ${C.gold}`, color: C.navy, padding: "13px 22px", borderRadius: 12, fontWeight: 700, fontSize: 14.5, textDecoration: "none" }}>JOIN NEURIX</a>
             </div>
             <div className="nx-stagger" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(140px,1fr))", gap: 16, marginTop: 40 }}>
               {FEATURES.map((f) => (
@@ -241,9 +241,9 @@ export default function LandingPage() {
         <h2 style={{ ...serif, color: C.navy, fontSize: 32, textAlign: "center", marginBottom: 40 }}>Membership Tiers</h2>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: 20 }}>
           {[
-            { tier: "Gold Member", price: "Rp xxxK", features: ["Akses 50+ topics", "Quiz unlimited", "Consultation 2x/bulan"] },
-            { tier: "Silver Member", price: "Rp xxxK", features: ["Akses all topics", "Quiz unlimited", "Consultation 4x/bulan", "Priority support"] },
-            { tier: "Platinum Member", price: "Rp xxxK", features: ["Akses all + premium", "Group sessions", "Consultation unlimited", "VIP support", "Research guidance"] }
+            { tier: "Silver Member", price: "Rp 350K", features: ["Bimbingan online", "Pembahasan materi dan modul", "Konsultasi PBL", "Konsultasi CBT", "Konsultasi SOCA", "Pembahasan Case"] },
+            { tier: "Silver Gold", price: "Rp 400K", features: ["Seluruh fasilitas Silver Member", "Bank soal", "Try out/simulasi ujian", "Review dan evaluasi hasil", "Konsultasi strategi menghadapi ujian"] },
+            { tier: "Platinum Member", price: "Rp 450K", features: ["Seluruh fasilitas Gold Member", "Pendampingan belajar lebih intensif", "Konsultasi prioritas", "Evaluasi perkembangan secara berkala", "Pendampingan persiapan ujian secara lebih personal"] }
           ].map((m) => (
             <div key={m.tier} style={{ background: C.card, border: `2px solid ${C.gold}`, borderRadius: 18, padding: 24, textAlign: "center" }}>
               <h3 style={{ ...serif, color: C.navy, margin: "0 0 8px" }}>{m.tier}</h3>
@@ -251,7 +251,10 @@ export default function LandingPage() {
               <ul style={{ textAlign: "left", fontSize: 14, color: C.ink, listStyle: "none", padding: 0, marginBottom: 20 }}>
                 {m.features.map((f) => <li key={f} style={{ marginBottom: 8 }}>✓ {f}</li>)}
               </ul>
-              <button style={{ width: "100%", background: C.navy, color: "#fff", border: "none", borderRadius: 10, padding: 12, fontWeight: 700, cursor: "pointer" }}>Pilih Paket</button>
+              <button onClick={() => {
+                  const msg = encodeURIComponent(`Halo Neurix Medical, saya ingin mendaftar paket ${m.tier} (${m.price}).`);
+                  window.open(`https://wa.me/6285821276673?text=${msg}`, "_blank");
+                }} style={{ width: "100%", background: C.navy, color: "#fff", border: "none", borderRadius: 10, padding: 12, fontWeight: 700, cursor: "pointer" }}>Pilih Paket</button>
             </div>
           ))}
         </div>

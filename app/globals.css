@@ -9,7 +9,16 @@
 }
 
 * { box-sizing: border-box; }
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+  max-width: 100vw;
+}
 html, body { margin: 0; padding: 0; background: var(--paper); -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
 
 /* HAMBURGER MENU */
 .nx-hamburger { 

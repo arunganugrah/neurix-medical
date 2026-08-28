@@ -70,7 +70,13 @@ function recordQuiz(quizId, score, total, wrongList) {
   const p = loadProgress();
   const pct = Math.round((score / total) * 100);
   const prev = p.topics[quizId];
-  p.topics[quizId] = { best: Math.max(pct, prev?.best || 0), last: pct, attempts: (prev?.attempts || 0) + 1, mastered: (prev?.mastered || false) || pct >= 70 };
+  p.topics[quizId] = {
+    first: prev?.first ?? pct,
+    best: Math.max(pct, prev?.best || 0),
+    last: pct,
+    attempts: (prev?.attempts || 0) + 1,
+    mastered: (prev?.mastered || false) || pct >= 70,
+  };
   p.wrong[quizId] = (wrongList || []).slice(0, 50);
   saveProgress(p); return p;
 }
@@ -655,22 +661,73 @@ function Donut({ C, data }) {
 
 function ReportView({ C, data, progress }) {
   const total = data.quizzes.length;
+  const studiedIds = Object.keys(progress.topics);
+  const studiedQuizzes = data.quizzes.filter((q) => studiedIds.includes(q.id));
   const mastered = Object.values(progress.topics).filter((t) => t.mastered).length;
-  const avg = total ? Math.round(Object.values(progress.topics).reduce((a, t) => a + (t.best || 0), 0) / (Object.keys(progress.topics).length || 1)) : 0;
+
+  if (studiedIds.length === 0) {
+    return (
+      <div>
+        <h2 style={{ ...serif, color: C.navy, fontSize: 26, margin: "0 0 16px" }}>Raport</h2>
+        <Empty C={C} text="Belum ada data. Kerjakan kuis dulu untuk melihat raport." />
+      </div>
+    );
+  }
+
+  const avg = Math.round(Object.values(progress.topics).reduce((a, t) => a + (t.best || 0), 0) / studiedIds.length);
+  const improvement = Math.round(Object.values(progress.topics).reduce((a, t) => a + ((t.best || 0) - (t.first ?? t.best ?? 0)), 0) / studiedIds.length);
+  const totalQuestions = studiedQuizzes.reduce((a, q) => a + (q.items || []).length, 0);
+
+  const weakTopics = studiedQuizzes
+    .map((q) => ({ title: q.title, pct: progress.topics[q.id]?.best ?? 0 }))
+    .sort((a, b) => a.pct - b.pct)
+    .slice(0, 5);
+  const badgeColor = (pct) => (pct < 60 ? "🟥" : pct < 70 ? "🟧" : pct < 80 ? "🟨" : "🟩");
+
   const donutData = [
     { label: "Sangat Baik", value: mastered, color: C.good },
     { label: "Baik", value: Math.max(0, Math.round(total * 0.26)), color: C.gold },
     { label: "Cukup", value: Math.max(0, Math.round(total * 0.1)), color: "#C8A24A" },
     { label: "Perlu Ditingkatkan", value: Math.max(0, total - mastered), color: C.bad },
   ];
+
   return (
     <div>
       <h2 style={{ ...serif, color: C.navy, fontSize: 26, margin: "0 0 16px" }}>Raport</h2>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
-        <div style={{ background: C.navy, color: "#fff", borderRadius: 18, padding: 20 }}>
-          <div style={{ fontSize: 13, opacity: .8 }}>Overall Score</div>
-          <div style={{ fontSize: 40, fontWeight: 700, color: C.gold }}>{avg}<span style={{ fontSize: 16 }}> /100</span></div>
+
+      <div style={{ background: C.navy, borderRadius: 18, padding: 24, color: "#fff", marginBottom: 16 }}>
+        <div style={{ fontSize: 13, opacity: .8, marginBottom: 4 }}>Your Performance</div>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 14, flexWrap: "wrap" }}>
+          <div style={{ fontSize: 40, fontWeight: 700, color: C.gold }}>
+            {avg}% <span style={{ fontSize: 14, color: "#fff", opacity: .8, fontWeight: 500 }}>Average Score</span>
+          </div>
+          {improvement !== 0 && (
+            <div style={{ fontSize: 14, fontWeight: 700, color: improvement > 0 ? "#7CD69A" : "#F0908A" }}>
+              {improvement > 0 ? "▲" : "▼"} {Math.abs(improvement)}% Improvement
+            </div>
+          )}
         </div>
+        <div style={{ display: "flex", gap: 24, marginTop: 16, flexWrap: "wrap" }}>
+          <div><div style={{ fontSize: 20, fontWeight: 700 }}>{totalQuestions}</div><div style={{ fontSize: 12, opacity: .75 }}>Questions</div></div>
+          <div><div style={{ fontSize: 20, fontWeight: 700 }}>{mastered}/{total}</div><div style={{ fontSize: 12, opacity: .75 }}>Topics Mastered</div></div>
+        </div>
+      </div>
+
+      {weakTopics.length > 0 && (
+        <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 18, padding: 20, marginBottom: 16 }}>
+          <h3 style={{ ...serif, color: C.bad, fontSize: 17, margin: "0 0 12px" }}>⚠️ Topik yang Perlu Ditingkatkan</h3>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {weakTopics.map((t) => (
+              <div key={t.title} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 14 }}>
+                <span>{badgeColor(t.pct)} {t.title}</span>
+                <b style={{ color: C.inkSoft }}>{t.pct}%</b>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
         <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 18, padding: 20 }}>
           <div style={{ fontSize: 13, color: C.inkSoft, marginBottom: 8 }}>Komponen Penilaian</div>
           {[["Quiz", avg], ["Try Out", Math.max(0, avg - 4)], ["Assignment", Math.min(100, avg + 4)], ["Attendance", 100]].map(([label, val]) => (
@@ -682,13 +739,6 @@ function ReportView({ C, data, progress }) {
         <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 18, padding: 20, textAlign: "center" }}>
           <div style={{ fontSize: 13, color: C.inkSoft, marginBottom: 8 }}>Topik Penguasaan</div>
           <Donut C={C} data={donutData} />
-          <div style={{ display: "flex", flexDirection: "column", gap: 3, marginTop: 8, fontSize: 11, textAlign: "left" }}>
-            {donutData.map((d) => (
-              <div key={d.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <span style={{ width: 8, height: 8, borderRadius: 999, background: d.color, display: "inline-block" }} />{d.label}
-              </div>
-            ))}
-          </div>
         </div>
       </div>
     </div>
